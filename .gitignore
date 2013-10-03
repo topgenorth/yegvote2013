@@ -109,3 +109,6 @@ UpgradeLog*.XML
 
 /YegVote2013.Android/YegVote2013.userprefs
 /YegVote2013.Android/Resources/Resource.Designer.cs
+/.rakeenv
+/revisionNumber
+.DS_Store
