@@ -3,7 +3,9 @@
     using Android.Content;
     using Android.OS;
 
-    public class ElectionResultsServiceConnection : Java.Lang.Object, IServiceConnection
+    using Java.Lang;
+
+    public class ElectionResultsServiceConnection : Object, IServiceConnection
     {
         private readonly MainActivity _activity;
 

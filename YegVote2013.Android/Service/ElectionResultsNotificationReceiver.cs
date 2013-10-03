@@ -1,13 +1,12 @@
-﻿using Android.Util;
-
-namespace net.opgenorth.yegvote.droid.Service
+﻿namespace net.opgenorth.yegvote.droid.Service
 {
     using Android.App;
     using Android.Content;
     using Android.Support.V4.App;
+    using Android.Util;
 
     /// <summary>
-    /// This Broadcase Receiver will display a notification when new updates have been received.
+    ///   This Broadcase Receiver will display a notification when new updates have been received.
     /// </summary>
     [BroadcastReceiver]
     [IntentFilter(new[] { ElectionResultsService.ElectionResultsUpdatedActionKey }, Priority = (int)IntentFilterPriority.LowPriority)]
@@ -15,8 +14,7 @@ namespace net.opgenorth.yegvote.droid.Service
     {
         public override void OnReceive(Context context, Intent intent)
         {
-
-			Log.Debug(GetType().FullName, "New data received.");
+            Log.Debug(GetType().FullName, "New data received.");
 
             var mgr = (NotificationManager)context.GetSystemService(Context.NotificationService);
 

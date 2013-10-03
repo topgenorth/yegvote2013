@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Candidate.cs" />
+    <Compile Include="Model\CandidateSorter.cs" />
     <Compile Include="ElectionResultAdapter.cs" />
     <Compile Include="Service\ElectionResultsNotificationReceiver.cs" />
     <Compile Include="Service\ElectionResultsService.cs" />
@@ -61,7 +63,9 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ElectionResult.cs" />
+    <Compile Include="Model\ElectionResult.cs" />
+    <Compile Include="Model\Ward.cs" />
+    <Compile Include="Model\Wrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

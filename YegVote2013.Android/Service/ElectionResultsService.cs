@@ -3,20 +3,20 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-	using System.Net;
+    using System.Net;
     using System.Threading.Tasks;
     using System.Xml.Linq;
 
     using Android.App;
     using Android.Content;
     using Android.OS;
-    using Android.Util;
+
+    using net.opgenorth.yegvote.droid.Model;
 
     [Service]
     [IntentFilter(new[] { ElectionServiceIntentFilterKey })]
     public class ElectionResultsService : IntentService
     {
-
         /// <summary>
         ///   A string specifying that the results have been updated.
         /// </summary>
@@ -33,44 +33,42 @@
 
         private IBinder _binder;
 
-        private List<ElectionResult> ElectionResults { get;  set; }
+        private List<ElectionResult> ElectionResults { get; set; }
+
+        /// <summary>
+        ///   Return a list of Wards.
+        /// </summary>
+        /// <returns>The wards.</returns>
+        public List<Ward> GetWards()
+        {
+            var wards = new List<Ward>();
+            var currentRaceId = -1;
+            Ward currentWard = null;
+            foreach (var electionResult in ElectionResults.OrderBy(er => er.RaceId))
+            {
+                if (currentRaceId != electionResult.RaceId)
+                {
+                    if (currentWard != null)
+                    {
+                        currentWard.Candidates.Sort(new CandidateSorter());
+                    }
+                    currentWard = Ward.NewInstance(electionResult);
+                    wards.Add(currentWard);
+                    currentRaceId = electionResult.RaceId;
+                }
+                else
+                {
+                    currentWard.AddCandiate(electionResult);
+                }
+            }
+            return wards;
+        }
 
         public override IBinder OnBind(Intent intent)
         {
             _binder = new ElectionResultsServiceBinder(this);
             return _binder;
         }
-
-		/// <summary>
-		/// Return a list of Wards.
-		/// </summary>
-		/// <returns>The wards.</returns>
-		public List<Ward> GetWards() 
-		{
-			var wards = new List<Ward>();
-			int currentRaceId = -1;
-			Ward currentWard = null;
-			foreach (var electionResult in ElectionResults.OrderBy(er =>er.RaceId))
-			{
-				if (currentRaceId != electionResult.RaceId)
-				{
-					if (currentWard != null)
-					{
-						currentWard.Candidates.Sort(new CandidateSorter());
-					}
-					currentWard = Ward.NewInstance(electionResult);
-					wards.Add(currentWard);
-					currentRaceId = electionResult.RaceId;
-				}
-				else
-				{
-					currentWard.AddCandiate(electionResult);
-				}
-
-			}
-			return wards;
-
-		}
 
         protected override async void OnHandleIntent(Intent intent)
         {

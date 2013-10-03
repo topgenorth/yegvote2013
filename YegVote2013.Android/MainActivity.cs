@@ -1,142 +1,143 @@
-﻿using System.Collections;
-
-namespace net.opgenorth.yegvote.droid
+﻿namespace net.opgenorth.yegvote.droid
 {
-	using System.Collections.Generic;
-	using System.Linq;
-	using Android.App;
-	using Android.Content;
-	using Android.OS;
-	using Android.Support.V4.App;
-	using Android.Util;
-	using Android.Widget;
-	using net.opgenorth.yegvote.droid.Service;
+    using System.Collections.Generic;
+    using System.Linq;
 
-	[Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
-	public class MainActivity : FragmentActivity
-	{
-		private ElectionResultsServiceConnection _serviceConnection;
-		private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
-		private Intent _electionServiceIntent;
-		private ExpandableListView _listView;
-		private LinearLayout _noDataLayout;
-		private ElectionResultAdapter _adapter;
-		private int _selectedGroup = -1;
-		private bool _hasData = false;
+    using Android.App;
+    using Android.Content;
+    using Android.OS;
+    using Android.Support.V4.App;
+    using Android.Util;
+    using Android.Views;
+    using Android.Widget;
 
-		internal ElectionResultsServiceBinder Binder { get; set; }
+    using net.opgenorth.yegvote.droid.Model;
+    using net.opgenorth.yegvote.droid.Service;
 
-		internal bool IsBound { get; set; }
+    [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
+    public class MainActivity : FragmentActivity
+    {
+        private ElectionResultAdapter _adapter;
+        private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
+        private Intent _electionServiceIntent;
+        private bool _hasData = false;
+        private ExpandableListView _listView;
+        private LinearLayout _noDataLayout;
+        private int _selectedGroup = -1;
+        private ElectionResultsServiceConnection _serviceConnection;
 
-		private bool IsAlarmSet { get { return PendingIntent.GetBroadcast(this, 0, _electionServiceIntent, PendingIntentFlags.NoCreate) != null; } }
+        internal ElectionResultsServiceBinder Binder { get; set; }
 
-		protected override void OnCreate(Bundle bundle)
-		{
-			base.OnCreate(bundle);
-			SetContentView(Resource.Layout.activity_main);
+        internal bool IsBound { get; set; }
 
-			_electionServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
+        private bool IsAlarmSet { get { return PendingIntent.GetBroadcast(this, 0, _electionServiceIntent, PendingIntentFlags.NoCreate) != null; } }
 
-			_displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
-			_noDataLayout = FindViewById<LinearLayout>(Resource.Id.noDataLayout);
+        public void DisplayElectionResults()
+        {
+            var wards = Binder.Service.GetWards();
+            DisplayElectionResults(wards);
+        }
 
-			_listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
-			_listView.GroupCollapse += HandleGroupCollapse;
-			_listView.GroupExpand += HandleGroupExpand;
-		}
+        public void DisplayElectionResults(IEnumerable<Ward> wards)
+        {
+            if (wards.Any())
+            {
+                Log.Debug(GetType().FullName, "Updating the List with new results.");
+                RunOnUiThread(() =>{
+                    _adapter = new ElectionResultAdapter(this, wards);
+                    _listView.SetAdapter(_adapter);
+                    _listView.Visibility = ViewStates.Visible;
+                    _noDataLayout.Visibility = ViewStates.Gone;
+                    _hasData = true;
 
-		void HandleGroupExpand(object sender, ExpandableListView.GroupExpandEventArgs e)
-		{
-			if (_selectedGroup != e.GroupPosition)
-			{
-				_selectedGroup = e.GroupPosition;
-			}
-		}
+                    if (_selectedGroup > -1)
+                    {
+                        _listView.SetSelectedGroup(_selectedGroup);
+                        _listView.ExpandGroup(_selectedGroup);
+                    }
+                });
+            }
+            else
+            {
+                RunOnUiThread(() =>{
+                    Log.Debug(GetType().FullName, "No data to display.");
+                    _listView.Visibility = ViewStates.Gone;
+                    _noDataLayout.Visibility = ViewStates.Visible;
+                    _hasData = false;
+                });
+            }
+        }
 
-		void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
-		{
-			_selectedGroup = e.GroupPosition;
-		}
+        protected override void OnCreate(Bundle bundle)
+        {
+            base.OnCreate(bundle);
+            SetContentView(Resource.Layout.activity_main);
 
-		protected override void OnStart()
-		{
-			base.OnStart();
-           
-			var intentFilter = new IntentFilter(ElectionResultsService.ElectionResultsUpdatedActionKey)
-			{
-				Priority = (int)IntentFilterPriority.HighPriority
-			};
-			RegisterReceiver(_displayElectionResultsReceiver, intentFilter);
+            _electionServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
 
-			_serviceConnection = new ElectionResultsServiceConnection(this);
-			BindService(_electionServiceIntent, _serviceConnection, Bind.AutoCreate);
+            _displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
+            _noDataLayout = FindViewById<LinearLayout>(Resource.Id.noDataLayout);
 
-			ScheduleElectionUpdates();
-		}
+            _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
+            _listView.GroupCollapse += HandleGroupCollapse;
+            _listView.GroupExpand += HandleGroupExpand;
+        }
 
-		protected override void OnStop()
-		{
-			string msg = string.Empty;
-			base.OnStop();
-			if (IsBound)
-			{
-				msg += "Unbinding the service.";
-				UnbindService(_serviceConnection);
-				_serviceConnection = null;
-				IsBound = false;
-			}
-			msg += " Unregistering the BroadcastReceiver.";
-			UnregisterReceiver(_displayElectionResultsReceiver);
-			Log.Debug(GetType().FullName, msg);
-		}
+        protected override void OnStart()
+        {
+            base.OnStart();
 
-		public void DisplayElectionResults()
-		{
-			var wards = Binder.Service.GetWards();
-			DisplayElectionResults(wards);
-		}
+            var intentFilter = new IntentFilter(ElectionResultsService.ElectionResultsUpdatedActionKey)
+                               {
+                                   Priority = (int)IntentFilterPriority.HighPriority
+                               };
+            RegisterReceiver(_displayElectionResultsReceiver, intentFilter);
 
-		public void DisplayElectionResults(IEnumerable<Ward> wards)
-		{
-			if (wards.Any())
-			{
-				Log.Debug(GetType().FullName, "Updating the List with new results.");
-				RunOnUiThread(() => {
-					_adapter = new ElectionResultAdapter(this, wards);
-					_listView.SetAdapter(_adapter);
-					_listView.Visibility = Android.Views.ViewStates.Visible;
-					_noDataLayout.Visibility = Android.Views.ViewStates.Gone;
-					_hasData = true;
+            _serviceConnection = new ElectionResultsServiceConnection(this);
+            BindService(_electionServiceIntent, _serviceConnection, Bind.AutoCreate);
 
-					if (_selectedGroup > -1)
-					{
-						_listView.SetSelectedGroup(_selectedGroup);
-						_listView.ExpandGroup(_selectedGroup);
-					}
+            ScheduleElectionUpdates();
+        }
 
-				});
-			}
-			else
-			{
-				RunOnUiThread(() => {
-					Log.Debug(GetType().FullName, "No data to display.");
-					_listView.Visibility = Android.Views.ViewStates.Gone;
-					_noDataLayout.Visibility = Android.Views.ViewStates.Visible;
-					_hasData = false;
-				});
-			}
-		}
+        protected override void OnStop()
+        {
+            var msg = string.Empty;
+            base.OnStop();
+            if (IsBound)
+            {
+                msg += "Unbinding the service.";
+                UnbindService(_serviceConnection);
+                _serviceConnection = null;
+                IsBound = false;
+            }
+            msg += " Unregistering the BroadcastReceiver.";
+            UnregisterReceiver(_displayElectionResultsReceiver);
+            Log.Debug(GetType().FullName, msg);
+        }
 
-		private void ScheduleElectionUpdates()
-		{
-			if (IsAlarmSet)
-			{
-				Log.Debug(GetType().FullName, "Alarm is already set.");
-				return;
-			}
-			var alarm = (AlarmManager)GetSystemService(AlarmService);
-			var pendingServiceIntent = PendingIntent.GetService(this, 0, _electionServiceIntent, PendingIntentFlags.CancelCurrent);
-			alarm.SetRepeating(AlarmType.Rtc, 0, 15000, pendingServiceIntent);
-		}
-	}
+        private void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
+        {
+            _selectedGroup = e.GroupPosition;
+        }
+
+        private void HandleGroupExpand(object sender, ExpandableListView.GroupExpandEventArgs e)
+        {
+            if (_selectedGroup != e.GroupPosition)
+            {
+                _selectedGroup = e.GroupPosition;
+            }
+        }
+
+        private void ScheduleElectionUpdates()
+        {
+            if (IsAlarmSet)
+            {
+                Log.Debug(GetType().FullName, "Alarm is already set.");
+                return;
+            }
+            var alarm = (AlarmManager)GetSystemService(AlarmService);
+            var pendingServiceIntent = PendingIntent.GetService(this, 0, _electionServiceIntent, PendingIntentFlags.CancelCurrent);
+            alarm.SetRepeating(AlarmType.Rtc, 0, 15000, pendingServiceIntent);
+        }
+    }
 }
