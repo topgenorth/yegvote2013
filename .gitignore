@@ -112,3 +112,4 @@ UpgradeLog*.XML
 /.rakeenv
 /revisionNumber
 .DS_Store
+/YegVote2013.Android/Components/
