@@ -1,5 +1,6 @@
 ﻿namespace net.opgenorth.yegvote.droid
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -11,26 +12,27 @@
     using Android.Views;
     using Android.Widget;
 
+    using AndroidHUD;
+
     using net.opgenorth.yegvote.droid.Model;
     using net.opgenorth.yegvote.droid.Service;
 
     [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
     public class MainActivity : FragmentActivity
     {
+        private const int Debug_Interval = 60 * 1000;
+        private const int Thirty_Minutes = 30 * 60 * 1000;
+
+        public static readonly string Tag = typeof(MainActivity).FullName;
+
         private ElectionResultAdapter _adapter;
         private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
         private Intent _electionServiceIntent;
-        private bool _hasData = false;
         private ExpandableListView _listView;
-        private LinearLayout _noDataLayout;
-        private int _selectedGroup = -1;
         private ElectionResultsServiceConnection _serviceConnection;
+        private MainActivityStateFragment _stateFrag;
 
         internal ElectionResultsServiceBinder Binder { get; set; }
-
-        internal bool IsBound { get; set; }
-
-        private bool IsAlarmSet { get { return PendingIntent.GetBroadcast(this, 0, _electionServiceIntent, PendingIntentFlags.NoCreate) != null; } }
 
         public void DisplayElectionResults()
         {
@@ -40,21 +42,22 @@
 
         public void DisplayElectionResults(IEnumerable<Ward> wards)
         {
+            _stateFrag.Wards = wards ?? new Ward[0];
+
             if (wards.Any())
             {
                 Log.Debug(GetType().FullName, "Updating the List with new results.");
                 RunOnUiThread(() =>{
                     _adapter = new ElectionResultAdapter(this, wards);
                     _listView.SetAdapter(_adapter);
-                    _listView.Visibility = ViewStates.Visible;
-                    _noDataLayout.Visibility = ViewStates.Gone;
-                    _hasData = true;
 
-                    if (_selectedGroup > -1)
+                    if (_stateFrag.SelectedGroup  > -1)
                     {
-                        _listView.SetSelectedGroup(_selectedGroup);
-                        _listView.ExpandGroup(_selectedGroup);
+                        _listView.SetSelectedGroup(_stateFrag.SelectedGroup);
+                        _listView.ExpandGroup(_stateFrag.SelectedGroup);
                     }
+                    AndHUD.Shared.Dismiss(this);
+                    _stateFrag.IsDisplayingHud = false;
                 });
             }
             else
@@ -62,8 +65,7 @@
                 RunOnUiThread(() =>{
                     Log.Debug(GetType().FullName, "No data to display.");
                     _listView.Visibility = ViewStates.Gone;
-                    _noDataLayout.Visibility = ViewStates.Visible;
-                    _hasData = false;
+                    AndHUD.Shared.ShowToast(this, "There is no data to display!", MaskType.Clear, TimeSpan.FromSeconds(2));
                 });
             }
         }
@@ -73,71 +75,123 @@
             base.OnCreate(bundle);
             SetContentView(Resource.Layout.activity_main);
 
+            _stateFrag = SupportFragmentManager.FindFragmentByTag(MainActivityStateFragment.Tag) as MainActivityStateFragment;
+            if (_stateFrag == null)
+            {
+                _stateFrag = MainActivityStateFragment.NewInstance();
+                var tx = SupportFragmentManager.BeginTransaction();
+                tx.Add(_stateFrag, MainActivityStateFragment.Tag);
+                tx.Commit();
+            }
+
             _electionServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
 
             _displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
-            _noDataLayout = FindViewById<LinearLayout>(Resource.Id.noDataLayout);
 
             _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
             _listView.GroupCollapse += HandleGroupCollapse;
             _listView.GroupExpand += HandleGroupExpand;
+
+            if (_stateFrag.HasData)
+            {
+                DisplayElectionResults(_stateFrag.Wards);
+            }
+            else
+            {
+                AndHUD.Shared.Show(this, "Retrieving Election Data", maskType: MaskType.Black);
+                _stateFrag.IsDisplayingHud = true;
+            }
+        
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
         }
 
         protected override void OnStart()
         {
             base.OnStart();
+            Log.Debug(Tag, "OnStart");
+            BindElectionResultsService();
+            ScheduleElectionUpdateAlarm();
+        }
 
+        protected override void OnStop()
+        {
+            CancelElectionUpdateAlarm();
+            UnbindElectionResultsService();
+            Log.Debug(Tag, "OnStop");
+            base.OnStop();
+        }
+
+        private void BindElectionResultsService()
+        {
+            Log.Debug(GetType().FullName, "BindElectionResultsService");
             var intentFilter = new IntentFilter(ElectionResultsService.ElectionResultsUpdatedActionKey)
                                {
                                    Priority = (int)IntentFilterPriority.HighPriority
                                };
             RegisterReceiver(_displayElectionResultsReceiver, intentFilter);
-
             _serviceConnection = new ElectionResultsServiceConnection(this);
-            BindService(_electionServiceIntent, _serviceConnection, Bind.AutoCreate);
-
-            ScheduleElectionUpdates();
+            _stateFrag.HasBoundService = BindService(_electionServiceIntent, _serviceConnection, Bind.AutoCreate);
         }
 
-        protected override void OnStop()
+        private void CancelElectionUpdateAlarm()
         {
-            var msg = string.Empty;
-            base.OnStop();
-            if (IsBound)
-            {
-                msg += "Unbinding the service.";
-                UnbindService(_serviceConnection);
-                _serviceConnection = null;
-                IsBound = false;
-            }
-            msg += " Unregistering the BroadcastReceiver.";
-            UnregisterReceiver(_displayElectionResultsReceiver);
-            Log.Debug(GetType().FullName, msg);
+            var alarmManager = (AlarmManager)GetSystemService(AlarmService);
+            var pendingIntent = PendingIntent.GetBroadcast(BaseContext, 0, _electionServiceIntent, 0);
+            alarmManager.Cancel(pendingIntent);
+            pendingIntent.Cancel();
+            _stateFrag.IsAlarmed = false;
         }
 
         private void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
         {
-            _selectedGroup = e.GroupPosition;
+            _stateFrag.SelectedGroup  = e.GroupPosition;
         }
 
         private void HandleGroupExpand(object sender, ExpandableListView.GroupExpandEventArgs e)
         {
-            if (_selectedGroup != e.GroupPosition)
-            {
-                _selectedGroup = e.GroupPosition;
-            }
+                _stateFrag.SelectedGroup  = e.GroupPosition;
         }
 
-        private void ScheduleElectionUpdates()
+        private void ScheduleElectionUpdateAlarm()
         {
-            if (IsAlarmSet)
+            if (_stateFrag.IsAlarmed)
             {
-                Log.Debug(GetType().FullName, "Alarm is already set.");
                 return;
             }
-            var alarm = (AlarmManager)GetSystemService(AlarmService);
-            var pendingServiceIntent = PendingIntent.GetService(this, 0, _electionServiceIntent, PendingIntentFlags.CancelCurrent);
-            alarm.SetRepeating(AlarmType.Rtc, 0, 15000, pendingServiceIntent);
+            Log.Debug(GetType().FullName, "ScheduleElectionUpdateAlarm");
+            var pendingIntent = PendingIntent.GetService(BaseContext, 0, _electionServiceIntent, PendingIntentFlags.CancelCurrent);
+            var alarmManager = (AlarmManager)GetSystemService(AlarmService);
+            alarmManager.SetRepeating(AlarmType.Rtc, 0, Thirty_Minutes, pendingIntent);
+            _stateFrag.IsAlarmed = true;
+        }
+
+        private void UnbindElectionResultsService()
+        {
+            var msg = string.Empty;
+            if (_stateFrag.HasBoundService)
+            {
+                msg += "Unbinding the service.";
+                UnbindService(_serviceConnection);
+                if (Binder != null)
+                {
+                    Binder.Service.StopSelf();
+                }
+                _serviceConnection = null;
+
+                msg += " Unregistering the BroadcastReceiver.";
+                UnregisterReceiver(_displayElectionResultsReceiver);
+                Log.Debug(GetType().FullName, msg);
+                _stateFrag.HasBoundService = false;
+            }
         }
     }
 }

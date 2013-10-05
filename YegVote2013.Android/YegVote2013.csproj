@@ -43,6 +43,10 @@
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AndHUD, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Components\AndHUD-1.2\lib\android\AndHUD.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Android" />
     <Reference Include="Mono.Android.Support.v4" />
     <Reference Include="mscorlib" />
@@ -52,9 +56,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainActivityStateFragment.cs" />
     <Compile Include="Model\Candidate.cs" />
     <Compile Include="Model\CandidateSorter.cs" />
     <Compile Include="ElectionResultAdapter.cs" />
+    <Compile Include="Service\AndroidExternalStorageDirectoryFactory.cs" />
     <Compile Include="Service\ElectionResultsNotificationReceiver.cs" />
     <Compile Include="Service\ElectionResultsService.cs" />
     <Compile Include="Service\ElectionResultsServiceBinder.cs" />
@@ -103,7 +109,12 @@
     <AndroidResource Include="Resources\drawable\list_item_background_transition.xml" />
     <AndroidResource Include="Resources\drawable\list_item_background.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <XamarinComponentReference Include="AndHUD">
+      <Visible>False</Visible>
+      <Version>1.2</Version>
+    </XamarinComponentReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
      Other similar extension points exist, see Microsoft.Common.targets.

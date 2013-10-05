@@ -21,13 +21,11 @@
             {
                 return;
             }
-            _activity.IsBound = true;
             _activity.Binder = binder;
         }
 
         public void OnServiceDisconnected(ComponentName name)
         {
-            _activity.IsBound = false;
         }
     }
 }
