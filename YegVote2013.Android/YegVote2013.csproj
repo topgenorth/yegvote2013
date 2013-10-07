@@ -43,6 +43,10 @@
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AndHUD, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Components\AndHUD-1.2\lib\android\AndHUD.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Android" />
     <Reference Include="Mono.Android.Support.v4" />
     <Reference Include="mscorlib" />
@@ -50,11 +54,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
-    <Reference Include="AndHUD">
-      <HintPath>Components\AndHUD-1.2\lib\android\AndHUD.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Service\AlarmHelper.cs" />
     <Compile Include="MainActivityStateFragment.cs" />
     <Compile Include="Model\Candidate.cs" />
     <Compile Include="Model\CandidateSorter.cs" />
@@ -110,7 +112,6 @@
   </ItemGroup>
   <ItemGroup>
     <XamarinComponentReference Include="AndHUD">
-      <InstallationInProgress>False</InstallationInProgress>
       <Version>1.2</Version>
       <Visible>False</Visible>
     </XamarinComponentReference>

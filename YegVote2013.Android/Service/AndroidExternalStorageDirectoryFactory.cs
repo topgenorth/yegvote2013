@@ -8,8 +8,9 @@
     using Environment = Android.OS.Environment;
 
     /// <summary>
-    ///   This class will figure out where ReportGraffiti should store it's pictures and thumbnails
+    ///   This class will figure out where to store files.
     /// </summary>
+    /// <remarks>Different versions of Android have different diretories for storage.</remarks>
     internal class AndroidExternalStorageDirectoryFactory
     {
         private readonly Context _context;

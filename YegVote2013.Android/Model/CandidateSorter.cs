@@ -2,6 +2,9 @@ namespace net.opgenorth.yegvote.droid.Model
 {
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Acclaimed candiate should be first, then sort by candidate name
+    /// </summary>
     public class CandidateSorter : IComparer<Candidate>
     {
         public int Compare(Candidate x, Candidate y)

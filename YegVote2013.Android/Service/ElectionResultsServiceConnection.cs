@@ -1,15 +1,14 @@
-﻿using Android.Util;
-
-namespace net.opgenorth.yegvote.droid.Service
+﻿namespace net.opgenorth.yegvote.droid.Service
 {
     using Android.Content;
     using Android.OS;
+    using Android.Util;
 
     using Java.Lang;
 
     public class ElectionResultsServiceConnection : Object, IServiceConnection
     {
-		private static readonly string Tag = typeof(ElectionResultsServiceConnection).FullName;
+        private static readonly string Tag = typeof(ElectionResultsServiceConnection).FullName;
         private readonly MainActivity _activity;
 
         public ElectionResultsServiceConnection(MainActivity activity)
@@ -29,7 +28,7 @@ namespace net.opgenorth.yegvote.droid.Service
 
         public void OnServiceDisconnected(ComponentName name)
         {
-			Log.Debug(Tag, "Service disconnected.");
+            Log.Debug(Tag, "Service disconnected.");
         }
     }
 }

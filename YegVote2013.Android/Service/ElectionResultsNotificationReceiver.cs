@@ -20,7 +20,7 @@
 
             var mgr = (NotificationManager)context.GetSystemService(Context.NotificationService);
 
-            // TODO [TO201310011104] 
+            // TODO [TO201310011104] Dismiss the intent when clicked.
             var contentIntent = PendingIntent.GetActivity(context, 0, new Intent(context, typeof(MainActivity)), 0);
 
             var builder = new NotificationCompat.Builder(context)

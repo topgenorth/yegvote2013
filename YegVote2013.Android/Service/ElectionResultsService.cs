@@ -72,11 +72,12 @@
             return _binder;
         }
 
-		public override void OnRebind(Intent intent)
-		{
-			base.OnRebind(intent);
-			Log.Debug(Tag, "OnRebind");
-		}
+        public override void OnRebind(Intent intent)
+        {
+            base.OnRebind(intent);
+            Log.Debug(Tag, "OnRebind");
+        }
+
         public override bool OnUnbind(Intent intent)
         {
             Log.Debug(Tag, "OnUnbind");

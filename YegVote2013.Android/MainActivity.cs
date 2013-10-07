@@ -17,66 +17,6 @@
     using net.opgenorth.yegvote.droid.Model;
     using net.opgenorth.yegvote.droid.Service;
 
-	public class AlarmHelper 
-	{
-		private static readonly string Tag = typeof(AlarmHelper).FullName ;
-
-		private Context _context;
-
-		public  AlarmHelper(Context context)
-		{
-			_context = context;
-			ServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
-		}
-
-		public Intent ServiceIntent { get; set; }
-		public bool IsAlarmSet { get { return QueryIfAlarmIsSet(); } }
-
-		/// <summary>
-		/// Set the alarm to go off at certain intervals.
-		/// </summary>
-		/// <param name="interval">The interval between each alarm in milliseconds.</param>
-		public void SetAlarm(int interval) 
-		{
-			var alarmUp = QueryIfAlarmIsSet();
-
-			if (IsAlarmSet)
-			{
-				Log.Debug(Tag, "Alarm is already set.");
-				return;
-			}
-			Log.Debug(Tag, "Setting the alarm.");
-
-			var pendingIntent = PendingIntent.GetService(_context, 0, ServiceIntent, PendingIntentFlags.CancelCurrent);
-			var alarmManager = (AlarmManager) _context.GetSystemService(Context.AlarmService);
-			alarmManager.SetRepeating(AlarmType.Rtc, 0, interval, pendingIntent);
-		}
-
-		public void CancelAlarm()
-		{
-			var alarmUp = QueryIfAlarmIsSet();
-			var alarmManager = (AlarmManager)_context.GetSystemService(Context.AlarmService);
-
-			while (QueryIfAlarmIsSet())
-			{
-				var pendingIntent = PendingIntent.GetBroadcast(_context, 0, ServiceIntent, 0);
-				alarmManager.Cancel(pendingIntent);
-				pendingIntent.Cancel();
-			}
-
-				Log.Debug(Tag, "Alarms should all be cancelled.");
-
-			return;
-		}
-
-		private bool QueryIfAlarmIsSet()
-		{
-			var pendingIntent = PendingIntent.GetBroadcast(_context, 0, ServiceIntent, PendingIntentFlags.NoCreate);
-			return pendingIntent != null;
-		}
-	}
-
-
     [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
     public class MainActivity : FragmentActivity
     {
@@ -86,11 +26,11 @@
         public static readonly string Tag = typeof(MainActivity).FullName;
 
         private ElectionResultAdapter _adapter;
+        private AlarmHelper _alarmHelper;
         private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
         private ExpandableListView _listView;
         private ElectionResultsServiceConnection _serviceConnection;
         private MainActivityStateFragment _stateFrag;
-		private AlarmHelper _alarmHelper;
 
         internal ElectionResultsServiceBinder Binder { get; set; }
 
@@ -111,7 +51,7 @@
                     _adapter = new ElectionResultAdapter(this, wards);
                     _listView.SetAdapter(_adapter);
 
-                    if (_stateFrag.SelectedGroup  > -1)
+                    if (_stateFrag.SelectedGroup > -1)
                     {
                         _listView.SetSelectedGroup(_stateFrag.SelectedGroup);
                         _listView.ExpandGroup(_stateFrag.SelectedGroup);
@@ -144,7 +84,7 @@
                 tx.Commit();
             }
 
-			_alarmHelper = new AlarmHelper(this);
+            _alarmHelper = new AlarmHelper(this);
             _displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
 
             _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
@@ -160,7 +100,6 @@
                 AndHUD.Shared.Show(this, "Retrieving Election Data", maskType: MaskType.Black);
                 _stateFrag.IsDisplayingHud = true;
             }
-        
         }
 
         protected override void OnPause()
@@ -203,18 +142,18 @@
 
         private void CancelElectionUpdateAlarm()
         {
-			_alarmHelper.CancelAlarm();
-			_stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
+            _alarmHelper.CancelAlarm();
+            _stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }
 
         private void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
         {
-            _stateFrag.SelectedGroup  = e.GroupPosition;
+            _stateFrag.SelectedGroup = e.GroupPosition;
         }
 
         private void HandleGroupExpand(object sender, ExpandableListView.GroupExpandEventArgs e)
         {
-                _stateFrag.SelectedGroup  = e.GroupPosition;
+            _stateFrag.SelectedGroup = e.GroupPosition;
         }
 
         private void ScheduleElectionUpdateAlarm()
@@ -223,8 +162,8 @@
             {
                 return;
             }
-			_alarmHelper.SetAlarm(Debug_Interval);
-			_stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
+            _alarmHelper.SetAlarm(Debug_Interval);
+            _stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }
 
         private void UnbindElectionResultsService()

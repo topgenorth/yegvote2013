@@ -14,17 +14,11 @@
 
         public bool HasBoundService { get; set; }
 
-        public bool HasData
-        {
-            get
-            {
-                return Wards != null && Wards.Any();
-            }
-        }
+        public bool HasData { get { return Wards != null && Wards.Any(); } }
 
-        public int SelectedGroup { get; set; }
         public bool IsAlarmed { get; set; }
         public bool IsDisplayingHud { get; set; }
+        public int SelectedGroup { get; set; }
         public IEnumerable<Ward> Wards { get; set; }
 
         public static MainActivityStateFragment NewInstance()
