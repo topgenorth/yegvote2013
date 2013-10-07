@@ -84,7 +84,7 @@
                 tx.Commit();
             }
 
-            _alarmHelper = new AlarmHelper(this);
+            _alarmHelper = new AlarmHelper(BaseContext);
             _displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
 
             _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);

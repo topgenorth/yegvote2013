@@ -6,8 +6,8 @@
 
     public class AlarmHelper
     {
+        public static int UpdateElectionResultsAlarmId = 1313;
         private static readonly string Tag = typeof(AlarmHelper).FullName;
-
         private readonly Context _context;
 
         public AlarmHelper(Context context)
@@ -16,24 +16,21 @@
             ServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
         }
 
-        public bool IsAlarmSet { get { return QueryIfAlarmIsSet(); } }
+        public AlarmManager AlarmManager { get { return (AlarmManager)_context.GetSystemService(Context.AlarmService); } }
+
+        public bool IsAlarmSet { get; private set; }
         public Intent ServiceIntent { get; set; }
 
         public void CancelAlarm()
         {
-            var alarmUp = QueryIfAlarmIsSet();
-            var alarmManager = (AlarmManager)_context.GetSystemService(Context.AlarmService);
-
-            while (QueryIfAlarmIsSet())
+            if (IsAlarmSet)
             {
-                var pendingIntent = PendingIntent.GetBroadcast(_context, 0, ServiceIntent, 0);
-                alarmManager.Cancel(pendingIntent);
+                var pendingIntent = PendingIntent.GetService(_context, UpdateElectionResultsAlarmId, ServiceIntent, 0);
+                AlarmManager.Cancel(pendingIntent);
                 pendingIntent.Cancel();
             }
-
+            IsAlarmSet = false;
             Log.Debug(Tag, "Alarms should all be cancelled.");
-
-            return;
         }
 
         /// <summary>
@@ -42,24 +39,17 @@
         /// <param name="interval">The interval between each alarm in milliseconds.</param>
         public void SetAlarm(int interval)
         {
-            var alarmUp = QueryIfAlarmIsSet();
-
             if (IsAlarmSet)
             {
                 Log.Debug(Tag, "Alarm is already set.");
                 return;
             }
-            Log.Debug(Tag, "Setting the alarm.");
+            Log.Debug(Tag, "Setting the alarm for every {0} seconds.", (interval / 1000));
 
-            var pendingIntent = PendingIntent.GetService(_context, 0, ServiceIntent, PendingIntentFlags.CancelCurrent);
+            var pendingIntent = PendingIntent.GetService(_context, UpdateElectionResultsAlarmId, ServiceIntent, PendingIntentFlags.CancelCurrent);
             var alarmManager = (AlarmManager)_context.GetSystemService(Context.AlarmService);
             alarmManager.SetRepeating(AlarmType.Rtc, 0, interval, pendingIntent);
-        }
-
-        private bool QueryIfAlarmIsSet()
-        {
-            var pendingIntent = PendingIntent.GetBroadcast(_context, 0, ServiceIntent, PendingIntentFlags.NoCreate);
-            return pendingIntent != null;
+            IsAlarmSet = true;
         }
     }
 }
