@@ -16,7 +16,7 @@
 
         public override void OnReceive(Context context, Intent intent)
         {
-            Log.Debug(GetType().FullName, "New data received.");
+            Log.Debug(GetType().FullName, "Notifying the user about the new data.");
 
             var mgr = (NotificationManager)context.GetSystemService(Context.NotificationService);
 

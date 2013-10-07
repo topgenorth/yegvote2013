@@ -17,6 +17,66 @@
     using net.opgenorth.yegvote.droid.Model;
     using net.opgenorth.yegvote.droid.Service;
 
+	public class AlarmHelper 
+	{
+		private static readonly string Tag = typeof(AlarmHelper).FullName ;
+
+		private Context _context;
+
+		public  AlarmHelper(Context context)
+		{
+			_context = context;
+			ServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
+		}
+
+		public Intent ServiceIntent { get; set; }
+		public bool IsAlarmSet { get { return QueryIfAlarmIsSet(); } }
+
+		/// <summary>
+		/// Set the alarm to go off at certain intervals.
+		/// </summary>
+		/// <param name="interval">The interval between each alarm in milliseconds.</param>
+		public void SetAlarm(int interval) 
+		{
+			var alarmUp = QueryIfAlarmIsSet();
+
+			if (IsAlarmSet)
+			{
+				Log.Debug(Tag, "Alarm is already set.");
+				return;
+			}
+			Log.Debug(Tag, "Setting the alarm.");
+
+			var pendingIntent = PendingIntent.GetService(_context, 0, ServiceIntent, PendingIntentFlags.CancelCurrent);
+			var alarmManager = (AlarmManager) _context.GetSystemService(Context.AlarmService);
+			alarmManager.SetRepeating(AlarmType.Rtc, 0, interval, pendingIntent);
+		}
+
+		public void CancelAlarm()
+		{
+			var alarmUp = QueryIfAlarmIsSet();
+			var alarmManager = (AlarmManager)_context.GetSystemService(Context.AlarmService);
+
+			while (QueryIfAlarmIsSet())
+			{
+				var pendingIntent = PendingIntent.GetBroadcast(_context, 0, ServiceIntent, 0);
+				alarmManager.Cancel(pendingIntent);
+				pendingIntent.Cancel();
+			}
+
+				Log.Debug(Tag, "Alarms should all be cancelled.");
+
+			return;
+		}
+
+		private bool QueryIfAlarmIsSet()
+		{
+			var pendingIntent = PendingIntent.GetBroadcast(_context, 0, ServiceIntent, PendingIntentFlags.NoCreate);
+			return pendingIntent != null;
+		}
+	}
+
+
     [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
     public class MainActivity : FragmentActivity
     {
@@ -27,10 +87,10 @@
 
         private ElectionResultAdapter _adapter;
         private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
-        private Intent _electionServiceIntent;
         private ExpandableListView _listView;
         private ElectionResultsServiceConnection _serviceConnection;
         private MainActivityStateFragment _stateFrag;
+		private AlarmHelper _alarmHelper;
 
         internal ElectionResultsServiceBinder Binder { get; set; }
 
@@ -84,8 +144,7 @@
                 tx.Commit();
             }
 
-            _electionServiceIntent = new Intent(ElectionResultsService.ElectionServiceIntentFilterKey);
-
+			_alarmHelper = new AlarmHelper(this);
             _displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
 
             _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
@@ -139,16 +198,13 @@
                                };
             RegisterReceiver(_displayElectionResultsReceiver, intentFilter);
             _serviceConnection = new ElectionResultsServiceConnection(this);
-            _stateFrag.HasBoundService = BindService(_electionServiceIntent, _serviceConnection, Bind.AutoCreate);
+            _stateFrag.HasBoundService = BindService(_alarmHelper.ServiceIntent, _serviceConnection, Bind.AutoCreate);
         }
 
         private void CancelElectionUpdateAlarm()
         {
-            var alarmManager = (AlarmManager)GetSystemService(AlarmService);
-            var pendingIntent = PendingIntent.GetBroadcast(BaseContext, 0, _electionServiceIntent, 0);
-            alarmManager.Cancel(pendingIntent);
-            pendingIntent.Cancel();
-            _stateFrag.IsAlarmed = false;
+			_alarmHelper.CancelAlarm();
+			_stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }
 
         private void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
@@ -167,11 +223,8 @@
             {
                 return;
             }
-            Log.Debug(GetType().FullName, "ScheduleElectionUpdateAlarm");
-            var pendingIntent = PendingIntent.GetService(BaseContext, 0, _electionServiceIntent, PendingIntentFlags.CancelCurrent);
-            var alarmManager = (AlarmManager)GetSystemService(AlarmService);
-            alarmManager.SetRepeating(AlarmType.Rtc, 0, Thirty_Minutes, pendingIntent);
-            _stateFrag.IsAlarmed = true;
+			_alarmHelper.SetAlarm(Debug_Interval);
+			_stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }
 
         private void UnbindElectionResultsService()
