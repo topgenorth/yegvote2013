@@ -96,8 +96,18 @@
             }
             else
             {
-                AndHUD.Shared.Show(this, "Retrieving Election Data");
-                _stateFrag.IsDisplayingHud = true;
+				var settings = new ElectionServiceDownloadDirectory(this);
+				if (settings.ResultsAreDownloaded)
+				{
+					var wardBuilder = new WardBuilder();
+					DisplayElectionResults(wardBuilder.GetWards(settings.GetResultsXmlFile()));
+					_stateFrag.IsDisplayingHud = false;
+				}
+				else
+				{
+					AndHUD.Shared.Show(this, "Retrieving Election Data");
+					_stateFrag.IsDisplayingHud = true;
+				}
             }
         }
 

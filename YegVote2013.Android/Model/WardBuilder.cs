@@ -5,6 +5,14 @@
 
     public class WardBuilder
     {
+
+		public List<Ward> GetWards(string xmlFileName) 
+		{
+			var electionParser = new ElectionResultsParser();
+			var electionResults = electionParser.ParseElectionResultFromFile(xmlFileName);
+			return GetWards(electionResults);
+		}
+
         /// <summary>
         ///   Return a list of Wards.
         /// </summary>
