@@ -10,5 +10,6 @@ namespace net.opgenorth.yegvote.droid.Model
         public Guid UUID { get; set; }
         public int VotesReceived { get; set; }
         public Ward Ward { get; set; }
+        public DateTime ReportedAt { get; set; }
     }
 }

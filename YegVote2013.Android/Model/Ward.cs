@@ -14,6 +14,7 @@ namespace net.opgenorth.yegvote.droid.Model
         public int Reporting { get; set; }
         public Guid UUID { get; set; }
         public int VotesCast { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
 
         public static Ward NewInstance(ElectionResult electionResult)
         {
@@ -40,6 +41,8 @@ namespace net.opgenorth.yegvote.droid.Model
             candidate.Percentage = electionResult.Percentage;
             candidate.UUID = electionResult.UUID;
             candidate.Acclaimed = electionResult.Acclaimed;
+            candidate.ReportedAt = electionResult.ReportedAt;
+
             Candidates.Add(candidate);
             return candidate;
         }

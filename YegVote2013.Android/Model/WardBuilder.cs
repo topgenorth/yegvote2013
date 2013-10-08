@@ -1,7 +1,9 @@
 ﻿namespace net.opgenorth.yegvote.droid.Model
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Cryptography;
 
     public class WardBuilder
     {
@@ -28,6 +30,7 @@
                 {
                     if (currentWard != null)
                     {
+                        currentWard.LastUpdatedAt = GetTimeUpdated(currentWard);
                         currentWard.Candidates.Sort(new CandidateSorter());
                     }
                     currentWard = Ward.NewInstance(electionResult);
@@ -40,6 +43,16 @@
                 }
             }
             return wards;
+        }
+
+        private DateTime GetTimeUpdated(Ward ward)
+        {
+            var candidates = from c in ward.Candidates
+                orderby c.ReportedAt descending
+                select c;
+
+			var newestCandidate = candidates.First();
+			return newestCandidate.ReportedAt;
         }
     }
 }
