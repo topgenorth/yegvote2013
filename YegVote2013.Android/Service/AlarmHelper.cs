@@ -6,7 +6,11 @@
 
     public class AlarmHelper
     {
+		public const int Debug_Interval = 60 * 1000;
+		public const int Thirty_Minutes = 30 * 60 * 1000;
+
         public static int UpdateElectionResultsAlarmId = 1313;
+
         private static readonly string Tag = typeof(AlarmHelper).FullName;
         private readonly Context _context;
 

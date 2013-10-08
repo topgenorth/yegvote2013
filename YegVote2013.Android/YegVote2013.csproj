@@ -60,7 +60,8 @@
     <Compile Include="Model\Candidate.cs" />
     <Compile Include="Model\CandidateSorter.cs" />
     <Compile Include="ElectionResultAdapter.cs" />
-    <Compile Include="Service\AndroidExternalStorageDirectoryFactory.cs" />
+    <Compile Include="Model\ElectionResultsParser.cs" />
+    <Compile Include="Service\ElectionServiceDownloadDirectory.cs" />
     <Compile Include="Service\ElectionResultsNotificationReceiver.cs" />
     <Compile Include="Service\ElectionResultsService.cs" />
     <Compile Include="Service\ElectionResultsServiceBinder.cs" />
@@ -72,6 +73,8 @@
     <Compile Include="Model\ElectionResult.cs" />
     <Compile Include="Model\Ward.cs" />
     <Compile Include="Model\Wrapper.cs" />
+    <Compile Include="Model\WardBuilder.cs" />
+    <Compile Include="Model\IHaveElectionResults.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using System.Xml.Linq;
 
     using Android.App;
     using Android.Content;
@@ -17,148 +16,63 @@
 
     [Service]
     [IntentFilter(new[] { ElectionServiceIntentFilterKey })]
-    public class ElectionResultsService : IntentService
+    public class ElectionResultsService : IntentService, IHaveElectionResults
     {
-        /// <summary>
-        ///   A string specifying that the results have been updated.
-        /// </summary>
         public const string ElectionResultsUpdatedActionKey = "ElectionResultsUpdated";
-        /// <summary>
-        ///   This is the name of the IntentService.
-        /// </summary>
         public const string ElectionServiceIntentFilterKey = "net.opgenorth.yegvote.droid.downloaderservice";
-        /// <summary>
-        ///   The URL to get the data from.
-        /// </summary>
         public static readonly string ResultsXmlFile = "https://data.edmonton.ca/api/views/b6ng-fzk2/rows.xml?accessType=DOWNLOAD";
-        public static readonly string Tag = typeof(ElectionResultsService).FullName;
+        public static readonly string LogTag = typeof(ElectionResultsService).FullName;
         private IBinder _binder;
+        private ElectionResultsParser _electionResultParser = new ElectionResultsParser();
 
-        private List<ElectionResult> ElectionResults { get; set; }
-
-        /// <summary>
-        ///   Return a list of Wards.
-        /// </summary>
-        /// <returns>The wards.</returns>
-        public List<Ward> GetWards()
-        {
-            var wards = new List<Ward>();
-            var currentRaceId = -1;
-            Ward currentWard = null;
-            foreach (var electionResult in ElectionResults.OrderBy(er => er.RaceId))
-            {
-                if (currentRaceId != electionResult.RaceId)
-                {
-                    if (currentWard != null)
-                    {
-                        currentWard.Candidates.Sort(new CandidateSorter());
-                    }
-                    currentWard = Ward.NewInstance(electionResult);
-                    wards.Add(currentWard);
-                    currentRaceId = electionResult.RaceId;
-                }
-                else
-                {
-                    currentWard.AddCandiate(electionResult);
-                }
-            }
-            return wards;
-        }
+        public List<ElectionResult> ElectionResults { get; private set; }
 
         public override IBinder OnBind(Intent intent)
         {
             _binder = new ElectionResultsServiceBinder(this);
-            Log.Debug(Tag, "OnBind");
+            Log.Debug(LogTag, "OnBind");
             return _binder;
-        }
-
-        public override void OnRebind(Intent intent)
-        {
-            base.OnRebind(intent);
-            Log.Debug(Tag, "OnRebind");
-        }
-
-        public override bool OnUnbind(Intent intent)
-        {
-            Log.Debug(Tag, "OnUnbind");
-            return base.OnUnbind(intent);
         }
 
         protected override async void OnHandleIntent(Intent intent)
         {
-            Log.Debug(Tag, "OnHandleIntent");
+            Log.Debug(LogTag, "OnHandleIntent");
             ElectionResults = await UpdateElectionResults();
             var resultsUpdatedIntent = new Intent(ElectionResultsUpdatedActionKey);
             SendOrderedBroadcast(resultsUpdatedIntent, null);
         }
 
-        private async Task<string> DownloadXmlAsync(WebClient webClient)
+        private async Task<string> DownloadXmlToFileAsync(WebClient webClient)
         {
-            var uri = new Uri(ResultsXmlFile);
-            string resultsXml;
-            resultsXml = await webClient.DownloadStringTaskAsync(uri);
-            return resultsXml;
-        }
-
-        private async Task DownloadXmlToFileAsync(WebClient webClient)
-        {
-            var settings = new AndroidExternalStorageDirectoryFactory(this);
+            var settings = new ElectionServiceDownloadDirectory(this);
             var fileName = settings.GetResultsXmlFile();
+			var oldFileName = fileName + ".old";
             var fileInfo = new FileInfo(fileName);
             if (fileInfo.Exists)
             {
+				if (File.Exists(oldFileName))
+				{
+					File.Delete(oldFileName);
+					Log.Debug(LogTag, "Deleting the backup results file.");
+				}
+				Log.Debug(LogTag, "Backing up the existing results file.");
                 fileInfo.MoveTo(fileName + ".old");
             }
+
             var uri = new Uri(ResultsXmlFile);
             await webClient.DownloadFileTaskAsync(uri, fileName);
-            Log.Debug(Tag, "Download file to " + fileName + ".");
-        }
-
-        private ElectionResult ParseElectionResultXml(XElement result)
-        {
-            var r = new ElectionResult();
-
-            try
-            { // ReSharper disable PossibleNullReferenceException
-                r.Id = Int32.Parse(result.Attribute("_id").Value);
-                r.UUID = new Guid(result.Attribute("_uuid").Value);
-                r.Address = result.Attribute("_address").Value;
-                // TODO [TO201310010954] 
-                //            r.ReportedAt =  DateTime.Parse(result.Element("reported_at").Value);
-                r.RaceId = Int32.Parse(result.Element("race_id").Value);
-                r.Contest = result.Element("contest").Value;
-                r.WardName = result.Element("ward_name").Value;
-                r.Acclaimed = result.Element("acclaimed").Value.Equals("Yes", StringComparison.OrdinalIgnoreCase);
-                r.Reporting = Int32.Parse(result.Element("reporting").Value);
-                r.OutOf = Int32.Parse(result.Element("out_of").Value);
-                r.VotesCast = Int32.Parse(result.Element("votes_cast").Value);
-                r.Race = Int32.Parse(result.Element("race").Value);
-                r.CandidateName = result.Element("candidate_name").Value;
-                r.VotesReceived = Int32.Parse(result.Element("votes_received").Value);
-                r.Percentage = float.Parse(result.Element("percentage").Value);
-                // ReSharper restore PossibleNullReferenceException
-            }
-            catch (Exception e)
-            {
-                Log.Error(Tag, e.ToString());
-                r = null;
-            }
-            return r;
+            Log.Debug(LogTag, "Download file to " + fileName + ".");
+            return fileName;
         }
 
         private async Task<List<ElectionResult>> UpdateElectionResults()
         {
-            string resultsXml;
+            string xmlFile;
             using (var webClient = new WebClient())
             {
-                resultsXml = await DownloadXmlAsync(webClient);
-                //				await this.DownloadXmlToFileAsync(webClient);
+                xmlFile = await DownloadXmlToFileAsync(webClient);
             }
-
-            var xdoc = XDocument.Parse(resultsXml);
-            var lvl1 = xdoc.Descendants("row");
-            var lvl2 = lvl1.Descendants("row");
-            var rows = lvl2.Select(ParseElectionResultXml).ToList();
+            var rows = _electionResultParser.ParseElectionResultFromFile(xmlFile).ToList();
             return rows;
         }
     }

@@ -20,11 +20,7 @@
     [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
     public class MainActivity : FragmentActivity
     {
-        private const int Debug_Interval = 60 * 1000;
-        private const int Thirty_Minutes = 30 * 60 * 1000;
-
         public static readonly string Tag = typeof(MainActivity).FullName;
-
         private ElectionResultAdapter _adapter;
         private AlarmHelper _alarmHelper;
         private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
@@ -36,7 +32,10 @@
 
         public void DisplayElectionResults()
         {
-            var wards = Binder.Service.GetWards();
+            var builder = new WardBuilder();
+
+            IEnumerable<Ward> wards = builder.GetWards(Binder.Service.ElectionResults);
+
             DisplayElectionResults(wards);
         }
 
@@ -75,12 +74,12 @@
             base.OnCreate(bundle);
             SetContentView(Resource.Layout.activity_main);
 
-            _stateFrag = SupportFragmentManager.FindFragmentByTag(MainActivityStateFragment.Tag) as MainActivityStateFragment;
+            _stateFrag = SupportFragmentManager.FindFragmentByTag(MainActivityStateFragment.LogTag) as MainActivityStateFragment;
             if (_stateFrag == null)
             {
                 _stateFrag = MainActivityStateFragment.NewInstance();
                 var tx = SupportFragmentManager.BeginTransaction();
-                tx.Add(_stateFrag, MainActivityStateFragment.Tag);
+                tx.Add(_stateFrag, MainActivityStateFragment.LogTag);
                 tx.Commit();
             }
 
@@ -97,19 +96,9 @@
             }
             else
             {
-                AndHUD.Shared.Show(this, "Retrieving Election Data", maskType: MaskType.Black);
+                AndHUD.Shared.Show(this, "Retrieving Election Data");
                 _stateFrag.IsDisplayingHud = true;
             }
-        }
-
-        protected override void OnPause()
-        {
-            base.OnPause();
-        }
-
-        protected override void OnResume()
-        {
-            base.OnResume();
         }
 
         protected override void OnStart()
@@ -162,7 +151,11 @@
             {
                 return;
             }
-            _alarmHelper.SetAlarm(Debug_Interval);
+#if DEBUG 
+            _alarmHelper.SetAlarm(AlarmHelper.Debug_Interval);
+#else
+            _alarmHelper.SetAlarm(AlarmHelper.Thirty_Minutes);
+#endif
             _stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }
 

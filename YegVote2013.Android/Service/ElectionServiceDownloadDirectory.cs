@@ -11,11 +11,11 @@
     ///   This class will figure out where to store files.
     /// </summary>
     /// <remarks>Different versions of Android have different diretories for storage.</remarks>
-    internal class AndroidExternalStorageDirectoryFactory
+    internal class ElectionServiceDownloadDirectory
     {
         private readonly Context _context;
 
-        public AndroidExternalStorageDirectoryFactory(Context context)
+        public ElectionServiceDownloadDirectory(Context context)
         {
             _context = context;
         }
@@ -32,10 +32,17 @@
             }
         }
 
+        public bool ResultsAreDownloaded
+        {
+            get
+            {
+                // TODO [TO201310041632] Maybe check to see how old the file is, > 30 minutes should return false?
+                return File.Exists(GetResultsXmlFile());
+            }
+        }
         public string GetResultsXmlFile()
         {
-            var javaDir = Environment.DataDirectory;
-            var dir = javaDir.AbsolutePath;
+            var dir = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads).AbsolutePath;
             return Path.Combine(dir, "election_results.xml");
         }
     }

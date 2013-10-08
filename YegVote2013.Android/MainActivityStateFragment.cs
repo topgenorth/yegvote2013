@@ -10,7 +10,7 @@
 
     internal class MainActivityStateFragment : Fragment
     {
-        public static readonly string Tag = typeof(MainActivityStateFragment).FullName.Replace(".", "_");
+        public static readonly string LogTag = typeof(MainActivityStateFragment).FullName.Replace(".", "_");
 
         public bool HasBoundService { get; set; }
 
