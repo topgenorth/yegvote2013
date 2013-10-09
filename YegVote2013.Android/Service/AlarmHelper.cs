@@ -7,7 +7,7 @@
 	public class AlarmHelper
 	{
 		public const int Debug_Interval = 30 * 1000;
-		public const int Fifteen_Minues = 15 * 60 * 1000;
+		public const int Fifteen_Minutes = 15 * 60 * 1000;
 		public static int UpdateElectionResultsAlarmId = 1313;
 		private static readonly string LogTag = typeof(AlarmHelper).FullName;
 		private readonly Context _context;

@@ -90,12 +90,21 @@
             _listView.GroupCollapse += HandleGroupCollapse;
             _listView.GroupExpand += HandleGroupExpand;
 
-            if (_stateFrag.HasData)
-            {
-                DisplayElectionResults(_stateFrag.Wards);
-            }
-            else
-            {
+
+        }
+
+		protected override void OnResume()
+		{
+			base.OnResume();
+			var mgr = (NotificationManager) GetSystemService(Context.NotificationService);
+			mgr.Cancel(ElectionResultsNotificationReceiver.NewElectionResultsNotificationId);
+
+			if (_stateFrag.HasCurrentData)
+			{
+				DisplayElectionResults(_stateFrag.Wards);
+			}
+			else
+			{
 				var settings = new ElectionServiceDownloadDirectory(this);
 				if (settings.ResultsAreDownloaded)
 				{
@@ -105,18 +114,10 @@
 				}
 				else
 				{
-					AndHUD.Shared.Show(this, "Retrieving Election Data");
+					AndHUD.Shared.Show(this, "Updating...");
 					_stateFrag.IsDisplayingHud = true;
 				}
-            }
-        }
-
-		protected override void OnResume()
-		{
-			base.OnResume();
-			var mgr = (NotificationManager) GetSystemService(Context.NotificationService);
-
-			mgr.Cancel(ElectionResultsNotificationReceiver.NewElectionResultsNotificationId);
+			}
 		}
         protected override void OnStart()
         { 
@@ -171,7 +172,7 @@
 #if DEBUG 
             _alarmHelper.SetAlarm(AlarmHelper.Debug_Interval);
 #else
-            _alarmHelper.SetAlarm(AlarmHelper.Thirty_Minutes);
+            _alarmHelper.SetAlarm(AlarmHelper.Fifteen_Minutes);
 #endif
             _stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }

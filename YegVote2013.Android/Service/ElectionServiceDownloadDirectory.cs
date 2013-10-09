@@ -1,4 +1,5 @@
 ﻿using Android.Runtime;
+using Android.Views;
 
 namespace net.opgenorth.yegvote.droid.Service
 {
@@ -16,10 +17,12 @@ namespace net.opgenorth.yegvote.droid.Service
     internal class ElectionServiceDownloadDirectory
     {
         private readonly Context _context;
+		private readonly PreferencesHelper _prefHelper;
 
         public ElectionServiceDownloadDirectory(Context context)
         {
             _context = context;
+			_prefHelper = new PreferencesHelper(context);
         }
 
         public void EnsureExternalStorageIsUsable()
@@ -38,8 +41,22 @@ namespace net.opgenorth.yegvote.droid.Service
         {
             get
             {
-                // TODO [TO201310041632] Maybe check to see how old the file is, > 30 minutes should return false?
-                return File.Exists(GetResultsXmlFileName());
+				var hasCurrentResults = false;
+				if (File.Exists(GetResultsXmlFileName()) )
+				{
+					var date = _prefHelper.GetDownloadTimestamp();
+					if (date.HasValue)
+					{
+						var delta = DateTime.UtcNow.Subtract(date.Value);
+#if DEBUG
+						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Debug_Interval;
+#else
+						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Fifteen_Minutes;
+#endif 
+					}
+				}
+                
+				return hasCurrentResults;
             }
         }
         public string GetResultsXmlFileName()

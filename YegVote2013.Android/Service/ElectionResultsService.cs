@@ -76,7 +76,8 @@
 
 		private void SaveDownloadTimestamp()
 		{
-			// TODO 	
+			var prefHelper = new PreferencesHelper(this);
+			prefHelper.UpdateDownloadTimestamp();
 		}
 
         private async Task<List<ElectionResult>> UpdateElectionResults()

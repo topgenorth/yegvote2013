@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Edmonton Votes - 2013</string>
     <string name="no_election_results">No Data</string>
+    <string name="last_download_pref">net.opgenorth.yegvote.droid.YEGVOTE2013_PREFERENCES</string>
 </resources>

@@ -75,6 +75,7 @@
     <Compile Include="Model\Wrapper.cs" />
     <Compile Include="Model\WardBuilder.cs" />
     <Compile Include="Model\IHaveElectionResults.cs" />
+    <Compile Include="PreferencesHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
