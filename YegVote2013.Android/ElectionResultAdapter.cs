@@ -69,24 +69,52 @@
             return groupPosition;
         }
 
+		private string FormatWardTitle(Ward ward)
+		{
+			if ("Councillor".Equals(ward.Contest, System.StringComparison.OrdinalIgnoreCase))
+			{
+				return ward.Contest + ", " + ward.Name;
+			}
+			else if ("Mayor".Equals(ward.Contest, System.StringComparison.OrdinalIgnoreCase))
+			{
+				return ward.Contest;
+			}
+			else if ("Public School Board Trustee".Equals(ward.Contest, System.StringComparison.OrdinalIgnoreCase))
+			{
+				return string.Format("Public School Trustee ({0})", ward.Name);
+			}
+			else if ("Catholic School Board Trustee".Equals(ward.Contest, System.StringComparison.OrdinalIgnoreCase))
+			{
+				return string.Format("Catholic School Trustee ({0})", ward.Name);
+			}
+			System.Console.WriteLine(ward.Contest);
+			return ward.Name + " - " + ward.Contest;
+		}
+
         public override View GetGroupView(int groupPosition, bool isExpanded, View convertView, ViewGroup parent)
         {
             var ward = _wards[groupPosition];
 
             var view = convertView ?? Inflater.Inflate(Resource.Layout.electionresult_header, null);
-            var title = view.FindViewById<TextView>(Resource.Id.wardHeaderTextView);
-            var reporting = view.FindViewById<TextView>(Resource.Id.pollsReportingTextView);
-            var lastUpdate = view.FindViewById<TextView>(Resource.Id.mostRecentUpdateTextView);
 
-            title.Text = ward.Name + "-" + ward.Contest;
-            lastUpdate.Text = ward.LastUpdatedAt.ToString("h:mm:ss tt");
-            reporting.Text = string.Format("{2:G} votes from {0} polls out of {1} reporting.", ward.Reporting, ward.OutOf, ward.VotesCast);
-            return view;
+            var title = view.FindViewById<TextView>(Resource.Id.wardHeaderTextView);
+			title.Text = FormatWardTitle(ward);
+
+			var lastUpdate = view.FindViewById<TextView>(Resource.Id.mostRecentUpdateTextView);
+            lastUpdate.Text = ward.LastUpdatedAt.ToString("h:mm tt");
+
+			var pollsReporting = view.FindViewById<TextView>(Resource.Id.pollsReportingTextView);
+			pollsReporting.Text = string.Format("{0} polls out of {1} reporting.", ward.Reporting, ward.OutOf);
+            
+			var numberOfVotes = view.FindViewById<TextView>(Resource.Id.numberOfVotesTextView);
+			numberOfVotes.Text = string.Format("{0} Votes cast", ward.VotesCast);
+
+			return view;
         }
 
         public override bool IsChildSelectable(int groupPosition, int childPosition)
         {
-            return true;
+            return false;
         }
     }
 }
