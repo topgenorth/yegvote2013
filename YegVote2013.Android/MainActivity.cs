@@ -100,7 +100,7 @@
 				if (settings.ResultsAreDownloaded)
 				{
 					var wardBuilder = new WardBuilder();
-					DisplayElectionResults(wardBuilder.GetWards(settings.GetResultsXmlFile()));
+					DisplayElectionResults(wardBuilder.GetWards(settings.GetResultsXmlFileName()));
 					_stateFrag.IsDisplayingHud = false;
 				}
 				else
@@ -111,8 +111,15 @@
             }
         }
 
+		protected override void OnResume()
+		{
+			base.OnResume();
+			var mgr = (NotificationManager) GetSystemService(Context.NotificationService);
+
+			mgr.Cancel(ElectionResultsNotificationReceiver.NewElectionResultsNotificationId);
+		}
         protected override void OnStart()
-        {
+        { 
             base.OnStart();
             Log.Debug(Tag, "OnStart");
             BindElectionResultsService();
