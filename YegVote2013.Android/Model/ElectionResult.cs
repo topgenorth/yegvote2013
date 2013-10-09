@@ -1,4 +1,4 @@
-namespace net.opgenorth.yegvote.droid.Model
+namespace YegVote2013.Droid.Model
 {
     using System;
 

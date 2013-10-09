@@ -1,9 +1,9 @@
-namespace net.opgenorth.yegvote.droid.Model
+namespace YegVote2013.Droid.Model
 {
     using System.Collections.Generic;
 
     /// <summary>
-    /// Acclaimed candiate should be first, then sort by candidate name
+    ///   Acclaimed candiate should be first, then sort by candidate name
     /// </summary>
     public class CandidateSorter : IComparer<Candidate>
     {

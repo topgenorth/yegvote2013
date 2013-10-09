@@ -1,4 +1,4 @@
-namespace net.opgenorth.yegvote.droid.Model
+namespace YegVote2013.Droid.Model
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +7,7 @@ namespace net.opgenorth.yegvote.droid.Model
     {
         public List<Candidate> Candidates { get; private set; }
         public string Contest { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
         public string Name { get; set; }
         public int OutOf { get; set; }
         public int Race { get; set; }
@@ -14,7 +15,6 @@ namespace net.opgenorth.yegvote.droid.Model
         public int Reporting { get; set; }
         public Guid UUID { get; set; }
         public int VotesCast { get; set; }
-        public DateTime LastUpdatedAt { get; set; }
 
         public static Ward NewInstance(ElectionResult electionResult)
         {

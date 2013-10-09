@@ -1,19 +1,17 @@
-﻿namespace net.opgenorth.yegvote.droid.Model
+﻿namespace YegVote2013.Droid.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Security.Cryptography;
 
     public class WardBuilder
     {
-
-		public List<Ward> GetWards(string xmlFileName) 
-		{
-			var electionParser = new ElectionResultsParser();
-			var electionResults = electionParser.ParseElectionResultFromFile(xmlFileName);
-			return GetWards(electionResults);
-		}
+        public List<Ward> GetWards(string xmlFileName)
+        {
+            var electionParser = new ElectionResultsParser();
+            var electionResults = electionParser.ParseElectionResultFromFile(xmlFileName);
+            return GetWards(electionResults);
+        }
 
         /// <summary>
         ///   Return a list of Wards.
@@ -51,8 +49,8 @@
                 orderby c.ReportedAt descending
                 select c;
 
-			var newestCandidate = candidates.First();
-			return newestCandidate.ReportedAt;
+            var newestCandidate = candidates.First();
+            return newestCandidate.ReportedAt;
         }
     }
 }

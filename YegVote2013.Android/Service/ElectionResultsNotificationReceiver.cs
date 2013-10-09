@@ -1,4 +1,4 @@
-﻿namespace net.opgenorth.yegvote.droid.Service
+﻿namespace YegVote2013.Droid.Service
 {
     using Android.App;
     using Android.Content;

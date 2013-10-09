@@ -1,4 +1,4 @@
-﻿namespace net.opgenorth.yegvote.droid
+﻿namespace YegVote2013.Droid
 {
     using System;
     using System.Collections.Generic;
@@ -14,8 +14,8 @@
 
     using AndroidHUD;
 
-    using net.opgenorth.yegvote.droid.Model;
-    using net.opgenorth.yegvote.droid.Service;
+    using YegVote2013.Droid.Model;
+    using YegVote2013.Droid.Service;
 
     [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
     public class MainActivity : FragmentActivity
@@ -89,38 +89,37 @@
             _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
             _listView.GroupCollapse += HandleGroupCollapse;
             _listView.GroupExpand += HandleGroupExpand;
-
-
         }
 
-		protected override void OnResume()
-		{
-			base.OnResume();
-			var mgr = (NotificationManager) GetSystemService(Context.NotificationService);
-			mgr.Cancel(ElectionResultsNotificationReceiver.NewElectionResultsNotificationId);
+        protected override void OnResume()
+        {
+            base.OnResume();
+            var mgr = (NotificationManager)GetSystemService(NotificationService);
+            mgr.Cancel(ElectionResultsNotificationReceiver.NewElectionResultsNotificationId);
 
-			if (_stateFrag.HasCurrentData)
-			{
-				DisplayElectionResults(_stateFrag.Wards);
-			}
-			else
-			{
-				var settings = new ElectionServiceDownloadDirectory(this);
-				if (settings.ResultsAreDownloaded)
-				{
-					var wardBuilder = new WardBuilder();
-					DisplayElectionResults(wardBuilder.GetWards(settings.GetResultsXmlFileName()));
-					_stateFrag.IsDisplayingHud = false;
-				}
-				else
-				{
-					AndHUD.Shared.Show(this, "Updating...");
-					_stateFrag.IsDisplayingHud = true;
-				}
-			}
-		}
+            if (_stateFrag.HasCurrentData)
+            {
+                DisplayElectionResults(_stateFrag.Wards);
+            }
+            else
+            {
+                var settings = new ElectionServiceDownloadDirectory(this);
+                if (settings.ResultsAreDownloaded)
+                {
+                    var wardBuilder = new WardBuilder();
+                    DisplayElectionResults(wardBuilder.GetWards(settings.GetResultsXmlFileName()));
+                    _stateFrag.IsDisplayingHud = false;
+                }
+                else
+                {
+                    AndHUD.Shared.Show(this, "Updating...");
+                    _stateFrag.IsDisplayingHud = true;
+                }
+            }
+        }
+
         protected override void OnStart()
-        { 
+        {
             base.OnStart();
             Log.Debug(Tag, "OnStart");
             BindElectionResultsService();
@@ -169,7 +168,7 @@
             {
                 return;
             }
-#if DEBUG 
+#if DEBUG
             _alarmHelper.SetAlarm(AlarmHelper.Debug_Interval);
 #else
             _alarmHelper.SetAlarm(AlarmHelper.Fifteen_Minutes);

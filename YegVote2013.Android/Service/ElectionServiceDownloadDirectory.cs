@@ -1,7 +1,4 @@
-﻿using Android.Runtime;
-using Android.Views;
-
-namespace net.opgenorth.yegvote.droid.Service
+﻿namespace YegVote2013.Droid.Service
 {
     using System;
     using System.IO;
@@ -17,12 +14,35 @@ namespace net.opgenorth.yegvote.droid.Service
     internal class ElectionServiceDownloadDirectory
     {
         private readonly Context _context;
-		private readonly PreferencesHelper _prefHelper;
+        private readonly PreferencesHelper _prefHelper;
 
         public ElectionServiceDownloadDirectory(Context context)
         {
             _context = context;
-			_prefHelper = new PreferencesHelper(context);
+            _prefHelper = new PreferencesHelper(context);
+        }
+
+        public bool ResultsAreDownloaded
+        {
+            get
+            {
+                var hasCurrentResults = false;
+                if (File.Exists(GetResultsXmlFileName()))
+                {
+                    var date = _prefHelper.GetDownloadTimestamp();
+                    if (date.HasValue)
+                    {
+                        var delta = DateTime.UtcNow.Subtract(date.Value);
+#if DEBUG
+                        hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Debug_Interval;
+#else
+						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Fifteen_Minutes;
+#endif
+                    }
+                }
+
+                return hasCurrentResults;
+            }
         }
 
         public void EnsureExternalStorageIsUsable()
@@ -37,35 +57,13 @@ namespace net.opgenorth.yegvote.droid.Service
             }
         }
 
-        public bool ResultsAreDownloaded
-        {
-            get
-            {
-				var hasCurrentResults = false;
-				if (File.Exists(GetResultsXmlFileName()) )
-				{
-					var date = _prefHelper.GetDownloadTimestamp();
-					if (date.HasValue)
-					{
-						var delta = DateTime.UtcNow.Subtract(date.Value);
-#if DEBUG
-						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Debug_Interval;
-#else
-						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Fifteen_Minutes;
-#endif 
-					}
-				}
-                
-				return hasCurrentResults;
-            }
-        }
         public string GetResultsXmlFileName()
         {
-			var dir = _context.ExternalCacheDir.AbsolutePath;
-			if (!Directory.Exists(dir))
-			{
-				Directory.CreateDirectory(dir);
-			}
+            var dir = _context.ExternalCacheDir.AbsolutePath;
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
             return Path.Combine(dir, "election_results.xml");
         }
     }

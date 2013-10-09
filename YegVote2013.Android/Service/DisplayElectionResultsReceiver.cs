@@ -1,10 +1,11 @@
-﻿namespace net.opgenorth.yegvote.droid.Service
+﻿namespace YegVote2013.Droid.Service
 {
     using System;
 
     using Android.Content;
     using Android.Util;
 
+    
     /// <summary>
     ///   This Broadcast receiver is used to to update MainActivity when new election results have been downloaded.
     /// </summary>

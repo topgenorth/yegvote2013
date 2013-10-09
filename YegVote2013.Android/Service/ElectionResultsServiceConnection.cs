@@ -1,10 +1,11 @@
-﻿namespace net.opgenorth.yegvote.droid.Service
+﻿namespace YegVote2013.Droid.Service
 {
     using Android.Content;
     using Android.OS;
     using Android.Util;
 
     using Java.Lang;
+
 
     public class ElectionResultsServiceConnection : Object, IServiceConnection
     {

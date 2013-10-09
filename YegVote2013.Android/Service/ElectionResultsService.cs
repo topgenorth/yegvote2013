@@ -1,4 +1,4 @@
-﻿namespace net.opgenorth.yegvote.droid.Service
+﻿namespace YegVote2013.Droid.Service
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +12,7 @@
     using Android.OS;
     using Android.Util;
 
-    using net.opgenorth.yegvote.droid.Model;
+    using YegVote2013.Droid.Model;
 
     [Service]
     [IntentFilter(new[] { ElectionServiceIntentFilterKey })]
@@ -20,8 +20,8 @@
     {
         public const string ElectionResultsUpdatedActionKey = "ElectionResultsUpdated";
         public const string ElectionServiceIntentFilterKey = "net.opgenorth.yegvote.droid.downloaderservice";
-        public static readonly string ResultsXmlFile = "https://data.edmonton.ca/api/views/b6ng-fzk2/rows.xml?accessType=DOWNLOAD";
         public static readonly string LogTag = typeof(ElectionResultsService).FullName;
+        public static readonly string ResultsXmlFile = "https://data.edmonton.ca/api/views/b6ng-fzk2/rows.xml?accessType=DOWNLOAD";
         private IBinder _binder;
         private ElectionResultsParser _electionResultParser = new ElectionResultsParser();
 
@@ -44,41 +44,41 @@
 
         private async Task<string> DownloadXmlToFileAsync(WebClient webClient)
         {
-			var fileName = GetFilenameOfDownload();
-			var uri = new Uri(ResultsXmlFile);
+            var fileName = GetFilenameOfDownload();
+            var uri = new Uri(ResultsXmlFile);
 
             await webClient.DownloadFileTaskAsync(uri, fileName);
 
-			SaveDownloadTimestamp();
+            SaveDownloadTimestamp();
 
             Log.Debug(LogTag, "Download file to " + fileName + ".");
             return fileName;
         }
 
-		private string GetFilenameOfDownload()
-		{
-			var settings = new ElectionServiceDownloadDirectory(this);
-			var fileName = settings.GetResultsXmlFileName();
-			var oldFileName = fileName + ".old";
-			var fileInfo = new FileInfo(fileName);
-			if (fileInfo.Exists)
-			{
-				if (File.Exists(oldFileName))
-				{
-					File.Delete(oldFileName);
-					Log.Debug(LogTag, "Deleting the backup results file.");
-				}
-				Log.Debug(LogTag, "Backing up the existing results file.");
-				fileInfo.MoveTo(fileName + ".old");
-			}
-			return fileName;
-		}
+        private string GetFilenameOfDownload()
+        {
+            var settings = new ElectionServiceDownloadDirectory(this);
+            var fileName = settings.GetResultsXmlFileName();
+            var oldFileName = fileName + ".old";
+            var fileInfo = new FileInfo(fileName);
+            if (fileInfo.Exists)
+            {
+                if (File.Exists(oldFileName))
+                {
+                    File.Delete(oldFileName);
+                    Log.Debug(LogTag, "Deleting the backup results file.");
+                }
+                Log.Debug(LogTag, "Backing up the existing results file.");
+                fileInfo.MoveTo(fileName + ".old");
+            }
+            return fileName;
+        }
 
-		private void SaveDownloadTimestamp()
-		{
-			var prefHelper = new PreferencesHelper(this);
-			prefHelper.UpdateDownloadTimestamp();
-		}
+        private void SaveDownloadTimestamp()
+        {
+            var prefHelper = new PreferencesHelper(this);
+            prefHelper.UpdateDownloadTimestamp();
+        }
 
         private async Task<List<ElectionResult>> UpdateElectionResults()
         {
