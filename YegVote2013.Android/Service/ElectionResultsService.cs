@@ -45,7 +45,7 @@
         private async Task<string> DownloadXmlToFileAsync(WebClient webClient)
         {
             var settings = new ElectionServiceDownloadDirectory(this);
-            var fileName = settings.GetResultsXmlFile();
+            var fileName = settings.GetResultsXmlFileName();
 			var oldFileName = fileName + ".old";
             var fileInfo = new FileInfo(fileName);
             if (fileInfo.Exists)
