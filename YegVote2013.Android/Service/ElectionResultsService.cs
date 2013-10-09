@@ -44,26 +44,40 @@
 
         private async Task<string> DownloadXmlToFileAsync(WebClient webClient)
         {
-            var settings = new ElectionServiceDownloadDirectory(this);
-            var fileName = settings.GetResultsXmlFileName();
+			var fileName = GetFilenameOfDownload();
+			var uri = new Uri(ResultsXmlFile);
+
+            await webClient.DownloadFileTaskAsync(uri, fileName);
+
+			SaveDownloadTimestamp();
+
+            Log.Debug(LogTag, "Download file to " + fileName + ".");
+            return fileName;
+        }
+
+		private string GetFilenameOfDownload()
+		{
+			var settings = new ElectionServiceDownloadDirectory(this);
+			var fileName = settings.GetResultsXmlFileName();
 			var oldFileName = fileName + ".old";
-            var fileInfo = new FileInfo(fileName);
-            if (fileInfo.Exists)
-            {
+			var fileInfo = new FileInfo(fileName);
+			if (fileInfo.Exists)
+			{
 				if (File.Exists(oldFileName))
 				{
 					File.Delete(oldFileName);
 					Log.Debug(LogTag, "Deleting the backup results file.");
 				}
 				Log.Debug(LogTag, "Backing up the existing results file.");
-                fileInfo.MoveTo(fileName + ".old");
-            }
+				fileInfo.MoveTo(fileName + ".old");
+			}
+			return fileName;
+		}
 
-            var uri = new Uri(ResultsXmlFile);
-            await webClient.DownloadFileTaskAsync(uri, fileName);
-            Log.Debug(LogTag, "Download file to " + fileName + ".");
-            return fileName;
-        }
+		private void SaveDownloadTimestamp()
+		{
+			// TODO 	
+		}
 
         private async Task<List<ElectionResult>> UpdateElectionResults()
         {
