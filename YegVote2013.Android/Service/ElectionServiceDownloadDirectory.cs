@@ -1,4 +1,6 @@
-﻿namespace net.opgenorth.yegvote.droid.Service
+﻿using Android.Runtime;
+
+namespace net.opgenorth.yegvote.droid.Service
 {
     using System;
     using System.IO;
@@ -37,12 +39,16 @@
             get
             {
                 // TODO [TO201310041632] Maybe check to see how old the file is, > 30 minutes should return false?
-                return File.Exists(GetResultsXmlFile());
+                return File.Exists(GetResultsXmlFileName());
             }
         }
-        public string GetResultsXmlFile()
+        public string GetResultsXmlFileName()
         {
-            var dir = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads).AbsolutePath;
+			var dir = _context.ExternalCacheDir.AbsolutePath;
+			if (!Directory.Exists(dir))
+			{
+				Directory.CreateDirectory(dir);
+			}
             return Path.Combine(dir, "election_results.xml");
         }
     }
