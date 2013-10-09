@@ -79,7 +79,7 @@
             var lastUpdate = view.FindViewById<TextView>(Resource.Id.mostRecentUpdateTextView);
 
             title.Text = ward.Name + "-" + ward.Contest;
-            lastUpdate.Text = ward.LastUpdatedAt.ToString("hh:mm:ss tt");
+            lastUpdate.Text = ward.LastUpdatedAt.ToString("h:mm:ss tt");
             reporting.Text = string.Format("{2:G} votes from {0} polls out of {1} reporting.", ward.Reporting, ward.OutOf, ward.VotesCast);
             return view;
         }
