@@ -1,7 +1,7 @@
-﻿namespace YegVote2013.Droid.Model
-{
-    using Java.Lang;
+﻿using Java.Lang;
 
+namespace YegVote2013.Droid.Model
+{
     /// <summary>
     ///   This class is used to wrap a .NET managed type inside a Java object.
     /// </summary>

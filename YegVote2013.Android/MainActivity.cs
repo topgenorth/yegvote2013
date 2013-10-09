@@ -1,22 +1,22 @@
-﻿namespace YegVote2013.Droid
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Android.App;
+using Android.Content;
+using Android.OS;
+using Android.Support.V4.App;
+using Android.Util;
+using Android.Views;
+using Android.Widget;
+
+using AndroidHUD;
+
+using YegVote2013.Droid.Model;
+using YegVote2013.Droid.Service;
+
+namespace YegVote2013.Droid
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Android.App;
-    using Android.Content;
-    using Android.OS;
-    using Android.Support.V4.App;
-    using Android.Util;
-    using Android.Views;
-    using Android.Widget;
-
-    using AndroidHUD;
-
-    using YegVote2013.Droid.Model;
-    using YegVote2013.Droid.Service;
-
     [Activity(Label = "@string/app_name", MainLauncher = true, Icon = "@drawable/ic_launcher")]
     public class MainActivity : FragmentActivity
     {

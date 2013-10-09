@@ -1,17 +1,17 @@
-﻿namespace YegVote2013.Droid
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Android.App;
+using Android.OS;
+
+using YegVote2013.Droid.Model;
+using YegVote2013.Droid.Service;
+
+using Fragment = Android.Support.V4.App.Fragment;
+
+namespace YegVote2013.Droid
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Android.App;
-    using Android.OS;
-
-    using YegVote2013.Droid.Model;
-    using YegVote2013.Droid.Service;
-
-    using Fragment = Android.Support.V4.App.Fragment;
-
     internal class MainActivityStateFragment : Fragment
     {
         public static readonly string LogTag = typeof(MainActivityStateFragment).FullName.Replace(".", "_");

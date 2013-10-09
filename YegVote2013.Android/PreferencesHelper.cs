@@ -1,9 +1,9 @@
+using System;
+
+using Android.Content;
+
 namespace YegVote2013.Droid
 {
-    using System;
-
-    using Android.Content;
-
     internal class PreferencesHelper
     {
         private readonly Context _context;

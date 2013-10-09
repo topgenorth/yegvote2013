@@ -1,9 +1,9 @@
-﻿namespace YegVote2013.Droid.Service
-{
-    using Android.App;
-    using Android.Content;
-    using Android.Util;
+﻿using Android.App;
+using Android.Content;
+using Android.Util;
 
+namespace YegVote2013.Droid.Service
+{
     public class AlarmHelper
     {
         public const int Debug_Interval = 30 * 1000;

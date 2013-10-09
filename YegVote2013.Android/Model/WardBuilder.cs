@@ -1,9 +1,9 @@
-﻿namespace YegVote2013.Droid.Model
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace YegVote2013.Droid.Model
+{
     public class WardBuilder
     {
         public List<Ward> GetWards(string xmlFileName)

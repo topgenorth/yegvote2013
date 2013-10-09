@@ -1,17 +1,17 @@
-﻿namespace YegVote2013.Droid
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Android.Content;
+using Android.Views;
+using Android.Widget;
+
+using YegVote2013.Droid.Model;
+
+using Object = Java.Lang.Object;
+
+namespace YegVote2013.Droid
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Android.Content;
-    using Android.Views;
-    using Android.Widget;
-
-    using YegVote2013.Droid.Model;
-
-    using Object = Java.Lang.Object;
-
     public class ElectionResultAdapter : BaseExpandableListAdapter
     {
         private readonly Context _context;

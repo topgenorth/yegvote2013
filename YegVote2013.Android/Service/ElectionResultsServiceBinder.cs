@@ -1,7 +1,7 @@
-﻿namespace YegVote2013.Droid.Service
-{
-    using Android.OS;
+﻿using Android.OS;
 
+namespace YegVote2013.Droid.Service
+{
     public class ElectionResultsServiceBinder : Binder
     {
         public ElectionResultsServiceBinder(ElectionResultsService service)

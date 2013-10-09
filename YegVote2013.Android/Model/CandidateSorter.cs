@@ -1,7 +1,7 @@
+using System.Collections.Generic;
+
 namespace YegVote2013.Droid.Model
 {
-    using System.Collections.Generic;
-
     /// <summary>
     ///   Acclaimed candiate should be first, then sort by candidate name
     /// </summary>

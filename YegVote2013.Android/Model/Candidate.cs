@@ -1,7 +1,7 @@
+using System;
+
 namespace YegVote2013.Droid.Model
 {
-    using System;
-
     public class Candidate
     {
         public bool Acclaimed { get; set; }

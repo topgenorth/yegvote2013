@@ -1,13 +1,13 @@
-﻿namespace YegVote2013.Droid.Model
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Xml;
-    using System.Xml.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 
+namespace YegVote2013.Droid.Model
+{
     public class ElectionResultsParser
     {
         public ElectionResult CreateElectionResult(XElement result)

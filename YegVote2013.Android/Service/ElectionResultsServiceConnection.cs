@@ -1,12 +1,11 @@
-﻿namespace YegVote2013.Droid.Service
+﻿using Android.Content;
+using Android.OS;
+using Android.Util;
+
+using Java.Lang;
+
+namespace YegVote2013.Droid.Service
 {
-    using Android.Content;
-    using Android.OS;
-    using Android.Util;
-
-    using Java.Lang;
-
-
     public class ElectionResultsServiceConnection : Object, IServiceConnection
     {
         private static readonly string Tag = typeof(ElectionResultsServiceConnection).FullName;

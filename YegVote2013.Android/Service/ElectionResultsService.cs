@@ -1,19 +1,19 @@
-﻿namespace YegVote2013.Droid.Service
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+
+using Android.App;
+using Android.Content;
+using Android.OS;
+using Android.Util;
+
+using YegVote2013.Droid.Model;
+
+namespace YegVote2013.Droid.Service
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-
-    using Android.App;
-    using Android.Content;
-    using Android.OS;
-    using Android.Util;
-
-    using YegVote2013.Droid.Model;
-
     [Service]
     [IntentFilter(new[] { ElectionServiceIntentFilterKey })]
     public class ElectionResultsService : IntentService, IHaveElectionResults

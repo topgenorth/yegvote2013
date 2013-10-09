@@ -1,12 +1,12 @@
-﻿namespace YegVote2013.Droid.Service
+﻿using System;
+using System.IO;
+
+using Android.Content;
+
+using Environment = Android.OS.Environment;
+
+namespace YegVote2013.Droid.Service
 {
-    using System;
-    using System.IO;
-
-    using Android.Content;
-
-    using Environment = Android.OS.Environment;
-
     /// <summary>
     ///   This class will figure out where to store files.
     /// </summary>

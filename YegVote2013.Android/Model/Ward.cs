@@ -1,8 +1,8 @@
+using System;
+using System.Collections.Generic;
+
 namespace YegVote2013.Droid.Model
 {
-    using System;
-    using System.Collections.Generic;
-
     public class Ward
     {
         public List<Candidate> Candidates { get; private set; }

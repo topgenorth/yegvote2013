@@ -1,10 +1,10 @@
-﻿namespace YegVote2013.Droid.Service
-{
-    using Android.App;
-    using Android.Content;
-    using Android.Support.V4.App;
-    using Android.Util;
+﻿using Android.App;
+using Android.Content;
+using Android.Support.V4.App;
+using Android.Util;
 
+namespace YegVote2013.Droid.Service
+{
     /// <summary>
     ///   This Broadcase Receiver will display a notification when new updates have been received.
     /// </summary>
