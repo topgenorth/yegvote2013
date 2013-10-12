@@ -5,9 +5,9 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
     <RelativeLayout
-        android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_weight="1"
+        android:layout_height="0px">
         <TextView
             android:text="wardHeader"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -24,16 +24,24 @@
             android:layout_alignParentRight="true"
             android:gravity="fill_vertical" />
     </RelativeLayout>
-    <TextView
-        android:text="pollsReporting"
-        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/pollsReportingTextView" />
-    <TextView
-        android:text="numberOfVotes"
-        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/numberOfVotesTextView" />
+        android:layout_weight="1"
+        android:layout_height="0px">
+        <TextView
+            android:text="pollsReporting"
+            android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pollsReportingTextView"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@id/numberOfVotes" />
+        <TextView
+            android:text="numberOfVotes"
+            android:gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/numberOfVotesTextView"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
 </LinearLayout>
