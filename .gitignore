@@ -114,3 +114,4 @@ UpgradeLog*.XML
 .DS_Store
 /YegVote2013.Android/Components/
 /.idea/
+/yegvote2013.apk

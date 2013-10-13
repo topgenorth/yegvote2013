@@ -30,14 +30,15 @@ def write_line(key, file)
   file.puts "#{k} = #{v}"
 end
 
-
 if File.exists? ('.rakeenv')
   load '.rakeenv'
 else
   puts "WARNING: no .rakeenv found. If you didn't set everything in your ENV, you will be unhappy."
 end
-@android = get_env(:android_home) + "/tools/android"
+
 @root_dir = get_env(:root_dir)
+@android = get_env(:android_home) + "/tools/android"
+@zipalign = get_env(:android_home) + "/tools/zipalign"
 
 ### TASKS
 task :require_environment do
@@ -48,9 +49,6 @@ task :require_environment do
 end
 
 task :default => [:require_environment, :clean, :build, :sign]
-
-desc "Compiles the Android project, the binding libraries, and then signs and zip aligns the APK."
-task :rebuild_all => [:require_environment, :clean, :build_bindings, :build, :sign]
 
 desc "Removes build artifacts"
 task :clean do
@@ -135,8 +133,10 @@ task :sign do
 
   sh "jarsigner", "-verbose", "-sigalg", "MD5withRSA", "-digestalg", "SHA1", "-keystore", keystore, "-storepass", store_pass, "-signedjar", signed_apk, input_apk, keystore_alias
 
-  final_apk = get_env(:android_final_apk)
-  sh "zipalign", "-f", "-v", "4", signed_apk, final_apk
+
+
+  final_apk = "#{@root_dir}/#{get_env(:android_final_apk)}"
+  sh @zipalign, "-f", "-v", "4", signed_apk, final_apk
   puts "==> APK for distribution: #{final_apk}"
 end
 
@@ -216,35 +216,4 @@ task :tag_release => [:require_environment] do
   end
 end
 
-desc "Build the app, then publish it to TestFlight"
-task :publish_to_testflight => [:require_environment, :clean, :build, :sign, :upload_to_testflight]
-
-desc "Upload a build to TestFlight. Will grab the git commit history between the TestFlight-current and Testflight-previous tags."
-task :upload_to_testflight => [:tag_release] do
-  Rake::Task["release_notes"].invoke
-
-  notify_teammates = false
-  testflight_endpoint = 'http://testflightapp.com/api/builds.json'
-  apk_file = "yegvote2013.apk"
-
-  release_notes_path = get_env(:release_notes_path)
-  release_notes_string=File.open(release_notes_path, 'r').read
-
-  puts "==> Uploading build to TestFlight."
-  response = HTTPClient.post(testflight_endpoint, {
-      :file => File.new(apk_file),
-      :notes => release_notes_string,
-      :api_token => get_env(:testflight_api_token),
-      :team_token => get_env(:testflight_team_token),
-      :notify => notify_teammates,
-      :distribution_lists => get_env(:testflight_distribution_lists),
-      :replace => true
-  })
-
-  if (response.status != 200)
-    puts "* ERROR posting file: got a #{response.status} response:"
-    puts response.body
-  else
-    puts "* SUCCESS:"
-  end
-end
+task :release => [:require_environment, :clean, :write_version, :build, :sign, :release_notes ]
