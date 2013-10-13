@@ -92,6 +92,7 @@
     <AndroidResource Include="Resources\Layout\activity_main.axml" />
     <AndroidResource Include="Resources\layout-land\electionresult_header.axml" />
     <AndroidResource Include="Resources\layout-land\electionresult_row.axml" />
+    <AndroidResource Include="Resources\layout-sw600dp\electionresult_header.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Values\Strings.xml" />
@@ -117,7 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <XamarinComponentReference Include="AndHUD">
-      <InstallationInProgress>False</InstallationInProgress>
       <Version>1.2</Version>
       <Visible>False</Visible>
     </XamarinComponentReference>

@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/pollsReportingTextView"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@id/numberOfVotes" />
+            android:layout_toLeftOf="@+id/numberOfVotes" />
         <TextView
             android:text="numberOfVotes"
             android:gravity="right"
