@@ -36,9 +36,19 @@ namespace YegVote2013.Droid.Model
 
         public DateTime ParseDate(string date)
         {
-            //            "Friday, September 27, 9:29 am"
-            var result = DateTime.ParseExact(date, "dddd, MMMM d, H:mm tt", CultureInfo.InvariantCulture);
-            return result;
+
+			try 
+			{
+	            // Friday, September 27, 9:29 am"
+				// Friday, October 11, 2013 08:26 pm
+	            var result = DateTime.ParseExact(date, "dddd, MMMM d, yyyy hh:mm tt", CultureInfo.InvariantCulture);
+	            return result;
+			}
+			catch (Exception ex)
+			{
+				throw new ApplicationException("Could not parse the date " + date, ex);
+
+			}
         }
 
         public IEnumerable<ElectionResult> ParseElectionResultFromFile(string pathToFile)
