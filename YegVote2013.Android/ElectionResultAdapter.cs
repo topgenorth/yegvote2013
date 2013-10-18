@@ -80,13 +80,13 @@ namespace YegVote2013.Droid
             title.Text = FormatWardTitle(ward);
 
             var lastUpdate = view.FindViewById<TextView>(Resource.Id.mostRecentUpdateTextView);
-            lastUpdate.Text = ward.LastUpdatedAt.ToString("h:mm tt");
+            lastUpdate.Text = "Last Updated:" + ward.LastUpdatedAt.ToString("h:mm tt");
 
             var pollsReporting = view.FindViewById<TextView>(Resource.Id.pollsReportingTextView);
             pollsReporting.Text = string.Format("{0} polls out of {1} reporting.", ward.Reporting, ward.OutOf);
 
             var numberOfVotes = view.FindViewById<TextView>(Resource.Id.numberOfVotesTextView);
-            numberOfVotes.Text = string.Format("{0} Votes cast", ward.VotesCast);
+            numberOfVotes.Text = string.Format("{0} votes cast", ward.VotesCast);
 
             return view;
         }

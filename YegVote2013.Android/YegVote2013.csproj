@@ -98,6 +98,7 @@
     <AndroidResource Include="Resources\layout-land\electionresult_header.axml" />
     <AndroidResource Include="Resources\layout-land\electionresult_row.axml" />
     <AndroidResource Include="Resources\layout-sw600dp\electionresult_header.axml" />
+    <AndroidResource Include="Resources\Values\dimen.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Values\Strings.xml" />

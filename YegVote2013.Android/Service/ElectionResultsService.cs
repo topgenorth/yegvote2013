@@ -38,7 +38,14 @@ namespace YegVote2013.Droid.Service
 
         protected override async void OnHandleIntent(Intent intent)
         {
-			if (!_isDownloading)
+			if (_isDownloading)
+			{
+				Log.Info(LogTag, "It seems we're already downloading results.");
+				var settings = new ElectionServiceDownloadDirectory(this);
+				var fileName = settings.GetResultsXmlFileName();
+				ElectionResults = _electionResultParser.ParseElectionResultFromFile(fileName).ToList();
+			}
+			else
 			{
 				try 
 				{
