@@ -11,6 +11,7 @@ using Android.OS;
 using Android.Util;
 
 using YegVote2013.Droid.Model;
+using System.Linq.Expressions;
 
 namespace YegVote2013.Droid.Service
 {
@@ -22,40 +23,73 @@ namespace YegVote2013.Droid.Service
         public const string ElectionServiceIntentFilterKey = "net.opgenorth.yegvote.droid.downloaderservice";
         public static readonly string LogTag = typeof(ElectionResultsService).FullName;
         public static readonly string ResultsXmlFile = "https://data.edmonton.ca/api/views/b6ng-fzk2/rows.xml?accessType=DOWNLOAD";
-        private IBinder _binder;
-        private ElectionResultsParser _electionResultParser = new ElectionResultsParser();
+
+		static bool _isDownloading = false;
+		IBinder _binder;
+        readonly ElectionResultsParser _electionResultParser = new ElectionResultsParser();
 
         public List<ElectionResult> ElectionResults { get; private set; }
 
         public override IBinder OnBind(Intent intent)
         {
             _binder = new ElectionResultsServiceBinder(this);
-            Log.Debug(LogTag, "OnBind");
             return _binder;
         }
 
         protected override async void OnHandleIntent(Intent intent)
         {
-            Log.Debug(LogTag, "OnHandleIntent");
-            ElectionResults = await UpdateElectionResults();
+			if (!_isDownloading)
+			{
+				try 
+				{
+					_isDownloading = true;
+					ElectionResults = await UpdateElectionResults();
+				}
+				catch (Exception ex)
+				{
+					Log.Error(LogTag, "Oh no, error trying to update: " + ex);
+				}
+				finally
+				{
+					_isDownloading = false;
+				}
+			}
             var resultsUpdatedIntent = new Intent(ElectionResultsUpdatedActionKey);
             SendOrderedBroadcast(resultsUpdatedIntent, null);
         }
 
-        private async Task<string> DownloadXmlToFileAsync(WebClient webClient)
+        async Task<string> DownloadXmlToFileAsync(WebClient webClient)
         {
             var fileName = GetFilenameOfDownload();
             var uri = new Uri(ResultsXmlFile);
+			var downloaded = false;
+			try 
+			{
+            	await webClient.DownloadFileTaskAsync(uri, fileName);
+				downloaded=true;
+			}
+			catch (Exception ex)
+			{
+				Log.Error(LogTag, "Couldn't download the file {0} to {1}: {2}", ResultsXmlFile, fileName, ex);
+				downloaded = false;
+			}
 
-            await webClient.DownloadFileTaskAsync(uri, fileName);
-
-            SaveDownloadTimestamp();
-
-            Log.Debug(LogTag, "Download file to " + fileName + ".");
-            return fileName;
+			if (File.Exists(fileName))
+			{
+				SaveDownloadTimestamp();
+				if (downloaded)
+				{
+					Log.Debug(LogTag, "Download file to " + fileName + ".");
+				}
+				return fileName;
+			}
+			else
+			{
+				throw new FileNotFoundException("Don't have the results XML file.", fileName);
+			}
         }
 
-        private string GetFilenameOfDownload()
+        string GetFilenameOfDownload()
         {
             var settings = new ElectionServiceDownloadDirectory(this);
             var fileName = settings.GetResultsXmlFileName();
@@ -74,19 +108,19 @@ namespace YegVote2013.Droid.Service
             return fileName;
         }
 
-        private void SaveDownloadTimestamp()
+        void SaveDownloadTimestamp()
         {
             var prefHelper = new PreferencesHelper(this);
             prefHelper.UpdateDownloadTimestamp();
         }
 
-        private async Task<List<ElectionResult>> UpdateElectionResults()
+        async Task<List<ElectionResult>> UpdateElectionResults()
         {
             string xmlFile;
-            using (var webClient = new WebClient())
-            {
-                xmlFile = await DownloadXmlToFileAsync(webClient);
-            }
+	            using (var webClient = new WebClient())
+	            {
+	                xmlFile = await DownloadXmlToFileAsync(webClient);
+	            }
             var rows = _electionResultParser.ParseElectionResultFromFile(xmlFile).ToList();
             return rows;
         }

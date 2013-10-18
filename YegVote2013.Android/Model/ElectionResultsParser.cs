@@ -39,8 +39,8 @@ namespace YegVote2013.Droid.Model
 
 			try 
 			{
-	            // Friday, September 27, 9:29 am"
-				// Friday, October 11, 2013 08:26 pm
+	            // Original Date Format       : Friday, September 27, 9:29 am
+				// Date Format on 18-Oct-2013 : Friday, October 11, 2013 08:26 pm
 	            var result = DateTime.ParseExact(date, "dddd, MMMM d, yyyy hh:mm tt", CultureInfo.InvariantCulture);
 	            return result;
 			}

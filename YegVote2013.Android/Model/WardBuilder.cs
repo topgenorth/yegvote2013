@@ -20,26 +20,29 @@ namespace YegVote2013.Droid.Model
         public List<Ward> GetWards(IEnumerable<ElectionResult> electionResults)
         {
             var wards = new List<Ward>();
-            var currentRaceId = -1;
-            Ward currentWard = null;
-            foreach (var electionResult in electionResults.OrderBy(er => er.RaceId))
-            {
-                if (currentRaceId != electionResult.RaceId)
-                {
-                    if (currentWard != null)
-                    {
-                        currentWard.LastUpdatedAt = GetTimeUpdated(currentWard);
-                        currentWard.Candidates.Sort(new CandidateSorter());
-                    }
-                    currentWard = Ward.NewInstance(electionResult);
-                    wards.Add(currentWard);
-                    currentRaceId = electionResult.RaceId;
-                }
-                else
-                {
-                    currentWard.AddCandiate(electionResult);
-                }
-            }
+			if (electionResults != null && electionResults.Any())
+			{
+				var currentRaceId = -1;
+				Ward currentWard = null;
+				foreach (var electionResult in electionResults.OrderBy(er => er.RaceId))
+				{
+					if (currentRaceId != electionResult.RaceId)
+					{
+						if (currentWard != null)
+						{
+							currentWard.LastUpdatedAt = GetTimeUpdated(currentWard);
+							currentWard.Candidates.Sort(new CandidateSorter());
+						}
+						currentWard = Ward.NewInstance(electionResult);
+						wards.Add(currentWard);
+						currentRaceId = electionResult.RaceId;
+					}
+					else
+					{
+						currentWard.AddCandiate(electionResult);
+					}
+				}
+			}
             return wards;
         }
 

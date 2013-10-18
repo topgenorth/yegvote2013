@@ -114,7 +114,6 @@ namespace YegVote2013.Droid
             {
                 return string.Format("Catholic School Trustee ({0})", ward.Name);
             }
-            Console.WriteLine(ward.Contest);
             return ward.Name + " - " + ward.Contest;
         }
     }
