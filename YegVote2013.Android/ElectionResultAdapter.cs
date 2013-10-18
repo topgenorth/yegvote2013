@@ -106,13 +106,13 @@ namespace YegVote2013.Droid
             {
                 return ward.Contest;
             }
-            else if ("Public School Board Trustee".Equals(ward.Contest, StringComparison.OrdinalIgnoreCase))
+            else if (ward.Contest.StartsWith("Public", StringComparison.OrdinalIgnoreCase))
             {
-                return string.Format("Public School Trustee ({0})", ward.Name);
+				return string.Format("{0} - Public School Trustee", ward.Name);
             }
-            else if ("Catholic School Board Trustee".Equals(ward.Contest, StringComparison.OrdinalIgnoreCase))
+            else if (ward.Contest.StartsWith("Catholic", StringComparison.OrdinalIgnoreCase))
             {
-                return string.Format("Catholic School Trustee ({0})", ward.Name);
+				return string.Format("{0} - Catholic School Trustee", ward.Name);
             }
             return ward.Name + " - " + ward.Contest;
         }
