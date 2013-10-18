@@ -51,7 +51,7 @@ namespace YegVote2013.Droid
             var votes = view.FindViewById<TextView>(Resource.Id.votesTextView);
 
             candidateName.Text = candidate.Name;
-            votes.Text = string.Format("{0} votes out ({1}%).", candidate.VotesReceived, candidate.Percentage);
+            votes.Text = string.Format("{0} votes ({1}%).", candidate.VotesReceived, candidate.Percentage);
             return view;
         }
 
