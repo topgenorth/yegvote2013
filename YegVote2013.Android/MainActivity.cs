@@ -148,7 +148,6 @@ namespace YegVote2013.Droid
         protected override void OnStart()
         {
             base.OnStart();
-            Log.Debug(Tag, "OnStart");
             BindElectionResultsService();
             ScheduleElectionUpdateAlarm();
         }
@@ -157,7 +156,6 @@ namespace YegVote2013.Droid
         {
             CancelElectionUpdateAlarm();
             UnbindElectionResultsService();
-            Log.Debug(Tag, "OnStop");
             base.OnStop();
         }
 
@@ -169,7 +167,6 @@ namespace YegVote2013.Droid
 
         void BindElectionResultsService()        
 		{
-            Log.Debug(GetType().FullName, "BindElectionResultsService");
             var intentFilter = new IntentFilter(ElectionResultsService.ElectionResultsUpdatedActionKey)
                                {
                                    Priority = (int)IntentFilterPriority.HighPriority
