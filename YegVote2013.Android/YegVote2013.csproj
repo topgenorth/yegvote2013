@@ -94,6 +94,16 @@
     <AndroidResource Include="Resources\layout-land\electionresult_row.axml" />
     <AndroidResource Include="Resources\layout-sw600dp\electionresult_header.axml" />
     <AndroidResource Include="Resources\Values\dimen.xml" />
+    <AndroidResource Include="Resources\menu\menu_mainactivity.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_menu_refresh_data.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_menu_refresh_data.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_menu_refresh_data.png" />
+    <AndroidResource Include="Resources\drawable\ic_menu_refresh_data.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_action_refresh.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_action_refresh.png" />
+    <AndroidResource Include="Resources\drawable\ic_action_refresh.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_action_refresh.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_action_refresh.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Values\Strings.xml" />
@@ -131,4 +141,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Resources\menu\" />
+  </ItemGroup>
 </Project>

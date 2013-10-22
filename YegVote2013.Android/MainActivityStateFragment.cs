@@ -31,9 +31,9 @@ namespace YegVote2013.Droid
                     {
                         var delta = DateTime.UtcNow.Subtract(date.Value);
 #if DEBUG
-                        isCurrentData = delta.TotalMilliseconds <= AlarmHelper.Debug_Interval;
+                        isCurrentData = delta.TotalMilliseconds <= AlarmHelper.DebugInterval;
 #else
-						isCurrentData = delta.TotalMilliseconds <= AlarmHelper.Fifteen_Minutes;
+						isCurrentData = delta.TotalMilliseconds <= AlarmHelper.FiveMinutes;
 						#endif
                     }
                 }

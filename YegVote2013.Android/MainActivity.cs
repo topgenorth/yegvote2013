@@ -14,6 +14,7 @@ using AndroidHUD;
 
 using YegVote2013.Droid.Model;
 using YegVote2013.Droid.Service;
+using Android.Content;
 
 namespace YegVote2013.Droid
 {
@@ -21,12 +22,13 @@ namespace YegVote2013.Droid
     public class MainActivity : FragmentActivity
     {
         public static readonly string Tag = typeof(MainActivity).FullName;
-        private ElectionResultAdapter _adapter;
-        private AlarmHelper _alarmHelper;
-        private DisplayElectionResultsReceiver _displayElectionResultsReceiver;
-        private ExpandableListView _listView;
-        private ElectionResultsServiceConnection _serviceConnection;
-        private MainActivityStateFragment _stateFrag;
+
+        ElectionResultAdapter _adapter;
+        AlarmHelper _alarmHelper;
+        DisplayElectionResultsReceiver _displayElectionResultsReceiver;
+        ExpandableListView _listView;
+        ElectionResultsServiceConnection _serviceConnection;
+        MainActivityStateFragment _stateFrag;
 
         internal ElectionResultsServiceBinder Binder { get; set; }
 
@@ -72,6 +74,7 @@ namespace YegVote2013.Droid
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+			InitializeActionBar();
             SetContentView(Resource.Layout.activity_main);
 
             _stateFrag = SupportFragmentManager.FindFragmentByTag(MainActivityStateFragment.LogTag) as MainActivityStateFragment;
@@ -86,11 +89,19 @@ namespace YegVote2013.Droid
             _alarmHelper = new AlarmHelper(BaseContext);
             _displayElectionResultsReceiver = new DisplayElectionResultsReceiver();
 
+
             _listView = FindViewById<ExpandableListView>(Resource.Id.electionResultsListView);
             _listView.GroupCollapse += HandleGroupCollapse;
             _listView.GroupExpand += HandleGroupExpand;
         }
 
+		void InitializeActionBar() 
+		{
+			if (Android.OS.Build.VERSION.SdkInt > Android.OS.BuildVersionCodes.Honeycomb)
+			{
+				RequestWindowFeature(WindowFeatures.ActionBar);
+			}
+		}
         protected override void OnResume()
         {
             base.OnResume();
@@ -118,6 +129,22 @@ namespace YegVote2013.Droid
             }
         }
 
+		public override bool OnOptionsItemSelected(IMenuItem item)
+		{
+			switch (item.ItemId)
+			{
+				case Resource.Id.menu_refresh_data:
+					var intent = new Intent(ElectionResultsService.ElectionResultsUpdatedActionKey);
+					Log.Debug(Tag, "User asked to update the data.");
+					SendOrderedBroadcast(intent, null);
+					Toast.MakeText(this, "Data refresh requested...", ToastLength.Short).Show();
+					return true;
+				default:
+					Log.Warn(Tag, "Don't know how to handle MenuItem {0}, {1}.", item.TitleFormatted, item, item.ItemId);
+					return true;
+			}
+		}
+
         protected override void OnStart()
         {
             base.OnStart();
@@ -134,8 +161,14 @@ namespace YegVote2013.Droid
             base.OnStop();
         }
 
-        private void BindElectionResultsService()
-        {
+		public override bool OnCreateOptionsMenu(IMenu menu)
+		{
+			MenuInflater.Inflate(Resource.Menu.menu_mainactivity, menu);
+			return true;
+		}
+
+        void BindElectionResultsService()        
+		{
             Log.Debug(GetType().FullName, "BindElectionResultsService");
             var intentFilter = new IntentFilter(ElectionResultsService.ElectionResultsUpdatedActionKey)
                                {
@@ -146,32 +179,32 @@ namespace YegVote2013.Droid
             _stateFrag.HasBoundService = BindService(_alarmHelper.ServiceIntent, _serviceConnection, Bind.AutoCreate);
         }
 
-        private void CancelElectionUpdateAlarm()
+        void CancelElectionUpdateAlarm()
         {
             _alarmHelper.CancelAlarm();
             _stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }
 
-        private void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
+        void HandleGroupCollapse(object sender, ExpandableListView.GroupCollapseEventArgs e)
         {
             _stateFrag.SelectedGroup = e.GroupPosition;
         }
 
-        private void HandleGroupExpand(object sender, ExpandableListView.GroupExpandEventArgs e)
+        void HandleGroupExpand(object sender, ExpandableListView.GroupExpandEventArgs e)
         {
             _stateFrag.SelectedGroup = e.GroupPosition;
         }
 
-        private void ScheduleElectionUpdateAlarm()
+        void ScheduleElectionUpdateAlarm()
         {
             if (_stateFrag.IsAlarmed)
             {
                 return;
             }
 #if DEBUG
-            _alarmHelper.SetAlarm(AlarmHelper.Debug_Interval);
+            _alarmHelper.SetAlarm(AlarmHelper.DebugInterval);
 #else
-            _alarmHelper.SetAlarm(AlarmHelper.Fifteen_Minutes);
+            _alarmHelper.SetAlarm(AlarmHelper.FiveMinutes);
 #endif
             _stateFrag.IsAlarmed = _alarmHelper.IsAlarmSet;
         }

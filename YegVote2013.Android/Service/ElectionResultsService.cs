@@ -124,10 +124,10 @@ namespace YegVote2013.Droid.Service
         async Task<List<ElectionResult>> UpdateElectionResults()
         {
             string xmlFile;
-	            using (var webClient = new WebClient())
-	            {
-	                xmlFile = await DownloadXmlToFileAsync(webClient);
-	            }
+            using (var webClient = new WebClient())
+            {
+                xmlFile = await DownloadXmlToFileAsync(webClient);
+            }
             var rows = _electionResultParser.ParseElectionResultFromFile(xmlFile).ToList();
             return rows;
         }

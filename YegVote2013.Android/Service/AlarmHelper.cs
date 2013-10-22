@@ -6,11 +6,11 @@ namespace YegVote2013.Droid.Service
 {
     public class AlarmHelper
     {
-        public const int Debug_Interval = 30 * 1000;
-        public const int Fifteen_Minutes = 15 * 60 * 1000;
+        public const int DebugInterval = 30 * 1000;
+        public const int FiveMinutes = 5 * 60 * 1000;
         public static int UpdateElectionResultsAlarmId = 1313;
-        private static readonly string LogTag = typeof(AlarmHelper).FullName;
-        private readonly Context _context;
+        static readonly string LogTag = typeof(AlarmHelper).FullName;
+        readonly Context _context;
 
         public AlarmHelper(Context context)
         {

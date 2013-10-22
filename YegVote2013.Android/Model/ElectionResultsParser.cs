@@ -55,7 +55,7 @@ namespace YegVote2013.Droid.Model
         {
             if (!File.Exists(pathToFile))
             {
-                throw new FileNotFoundException("The election results file does not exist.", pathToFile);
+                throw new FileNotFoundException("The election results file does not exist!", pathToFile);
             }
             using (var xmlReader = XmlReader.Create(pathToFile))
             {

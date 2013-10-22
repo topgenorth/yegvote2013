@@ -13,8 +13,8 @@ namespace YegVote2013.Droid.Service
     /// <remarks>Different versions of Android have different diretories for storage.</remarks>
     internal class ElectionServiceDownloadDirectory
     {
-        private readonly Context _context;
-        private readonly PreferencesHelper _prefHelper;
+        readonly Context _context;
+        readonly PreferencesHelper _prefHelper;
 
         public ElectionServiceDownloadDirectory(Context context)
         {
@@ -34,9 +34,9 @@ namespace YegVote2013.Droid.Service
                     {
                         var delta = DateTime.UtcNow.Subtract(date.Value);
 #if DEBUG
-                        hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Debug_Interval;
+                        hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.DebugInterval;
 #else
-						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.Fifteen_Minutes;
+						hasCurrentResults = delta.TotalMilliseconds <= AlarmHelper.FiveMinutes;
 #endif
                     }
                 }
